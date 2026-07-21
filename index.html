@@ -12,16 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
     <script>
       // GitHub Pages SPA redirect handler
-      // Reads the route encoded by 404.html and restores it via history.replaceState
-      (function () {
-        var redirect = sessionStorage.redirect;
-        delete sessionStorage.redirect;
-        if (redirect && redirect !== location.href) {
-          history.replaceState(null, null, redirect);
-        }
-      })();
-
-      // Also handle the query-param style redirect from 404.html
+      // Reads ?/route encoded by 404.html and restores the real path via history.replaceState
+      // so React Router boots with the correct route.
       (function (l) {
         if (l.search[1] === '/') {
           var decoded = l.search.slice(1).split('&').map(function (s) {
@@ -30,7 +22,7 @@
           window.history.replaceState(
             null, null,
             l.pathname.slice(0, -1) +
-            (decoded[0] ? '/' + decoded[0] : '') +
+            decoded[0] +
             (decoded[1] ? '?' + decoded[1] : '') +
             l.hash
           );
