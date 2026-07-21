@@ -1,0 +1,305 @@
+/* ─── HERO ─── */
+#hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding-top: 68px;
+}
+
+#hero .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(30, 58, 138, 0.5), rgba(30, 64, 175, 0.2)), url('/assets/hero_bg.jpg') center/cover no-repeat;
+    z-index: 0;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+}
+
+.hero-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 900;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+    margin-bottom: 1.25rem;
+}
+
+.hero-title .accent {
+    background: linear-gradient(135deg, #93c5fd, #bfdbfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-sub {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.75);
+    max-width: 540px;
+    margin-bottom: 2.5rem;
+    line-height: 1.7;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* ─── SERVICES ─── */
+#services {
+    position: relative;
+    overflow: hidden;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.service-card {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 24px;
+    padding: 2.5rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.service-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--blue-400), var(--blue-600));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    border-color: var(--blue-100);
+}
+
+.service-card:hover::after { transform: scaleX(1); }
+
+.service-card-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--blue-50);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--blue-400);
+    margin-bottom: 1.75rem;
+    transition: all 0.4s ease;
+}
+
+.service-card:hover .service-card-icon {
+    background: var(--blue-400);
+    color: #ffffff;
+    transform: rotate(-5deg) scale(1.1);
+}
+
+.service-card-icon .material-symbols-rounded { font-size: 2rem; }
+
+.service-card h3 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+}
+
+.service-card p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* ─── WHY CHOOSE US ─── */
+#why-choose-us { padding: 5rem 0; }
+
+.wcu-bento-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.wcu-box {
+    border-radius: 20px;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.wcu-box::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--blue-400), var(--blue-500));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+}
+
+.wcu-box:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    border-color: var(--blue-100);
+}
+
+.wcu-box:hover::after { transform: scaleX(1); }
+
+.wcu-box--light {
+    background: var(--gray-50);
+    border: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.wcu-box--wide {
+    grid-column: span 3;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2.5rem;
+}
+
+.wcu-icon-circle {
+    width: 64px;
+    height: 64px;
+    background: var(--blue-50);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--blue-400);
+    transition: all 0.4s ease;
+    flex-shrink: 0;
+}
+
+.wcu-box:hover .wcu-icon-circle {
+    background: var(--blue-400);
+    color: #ffffff;
+    transform: rotate(-5deg) scale(1.1);
+}
+
+.wcu-icon-circle .material-symbols-rounded { font-size: 1.5rem; }
+.wcu-content-wrap { flex: 1; }
+
+.wcu-box h3 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+}
+
+.wcu-box p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+/* ─── TESTIMONIALS ─── */
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3.5rem;
+}
+
+.testimonial-card {
+    background: var(--gray-50);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
+}
+
+.testimonial-quote {
+    color: var(--blue-400);
+    margin-bottom: 1.25rem;
+}
+
+.testimonial-quote span {
+    font-size: 2.5rem;
+    opacity: 0.5;
+}
+
+.testimonial-text {
+    font-size: 1rem;
+    color: var(--gray-700);
+    font-style: italic;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-top: 1px solid var(--gray-200);
+    padding-top: 1.5rem;
+}
+
+.testimonial-author img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--blue-100);
+}
+
+.author-info h4 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.author-info span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+    .wcu-bento-grid { grid-template-columns: repeat(2, 1fr); }
+    .wcu-box--wide { grid-column: span 2; }
+}
+
+@media (max-width: 768px) {
+    .services-grid { grid-template-columns: 1fr; }
+    .wcu-bento-grid { grid-template-columns: 1fr; }
+    .wcu-box--wide { grid-column: span 1; flex-direction: column; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+}

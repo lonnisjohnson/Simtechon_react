@@ -1,0 +1,345 @@
+/* ─── JD HERO BANNER (matches Jobs / Services hero style) ─── */
+.jd-hero-banner {
+    padding: 12rem 0 8rem;
+    position: relative;
+    background: url('/assets/jobs_banner.jpg') no-repeat center center / cover;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    color: #ffffff;
+    min-height: 90vh;
+    overflow: hidden;
+}
+
+.jd-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(30, 58, 138, 0.6), rgba(30, 64, 175, 0.25));
+    z-index: 1;
+}
+
+.jd-hero-shapes {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.jd-hero-content {
+    position: relative;
+    z-index: 3;
+    max-width: 1000px;
+}
+
+/* Back pill button */
+.jd-back-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    border-radius: 50px;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: background 0.2s;
+}
+.jd-back-pill:hover { background: rgba(255, 255, 255, 0.25); }
+
+/* Hero h1 — same as Jobs page */
+.jd-hero-banner h1 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 900;
+    font-size: clamp(2.8rem, 7vw, 4.5rem);
+    letter-spacing: -0.04em;
+    color: #ffffff;
+    line-height: 1.05;
+    margin-bottom: 1.75rem;
+    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.jd-hero-banner h1 span {
+    background: linear-gradient(135deg, #93c5fd, #bfdbfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Meta chips row */
+.jd-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.jd-meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.9);
+    border-radius: 50px;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.jd-salary-chip {
+    background: rgba(37, 99, 235, 0.4);
+    border-color: rgba(147, 197, 253, 0.5);
+    color: #fff;
+    font-weight: 700;
+}
+
+/* ─── ABOUT BODY (matches about-body) ─── */
+#jd-about { padding: 8rem 0; }
+
+.jd-about-body {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.jd-about-body p {
+    font-size: 1.2rem;
+    color: var(--gray-700);
+    line-height: 1.8;
+    text-align: justify;
+}
+
+/* ─── ALT BG SECTIONS ─── */
+.jd-alt-bg { background: #f8fafc; }
+
+/* ─── RESPONSIBILITIES BENTO GRID (matches wcu-bento-grid) ─── */
+.jd-bento-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.jd-resp-card {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 24px;
+    padding: 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.jd-resp-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--blue-400), var(--blue-600));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+}
+
+.jd-resp-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    border-color: var(--blue-100);
+}
+.jd-resp-card:hover::after { transform: scaleX(1); }
+
+.jd-resp-card:hover .wcu-icon-circle {
+    background: var(--blue-400);
+    color: #ffffff;
+    transform: rotate(-5deg) scale(1.1);
+}
+
+.jd-resp-card p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+}
+
+/* ─── REQUIREMENTS LIST (matches service-item style) ─── */
+.jd-req-list {
+    max-width: 820px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.jd-req-item {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: #ffffff;
+    padding: 1.25rem 1.75rem;
+    border-radius: 20px;
+    border: 1px solid var(--gray-200);
+    transition: all 0.3s ease;
+    font-size: 0.98rem;
+    color: var(--gray-900);
+    font-weight: 500;
+}
+
+.jd-req-item:hover {
+    transform: translateX(10px);
+    border-color: var(--blue-400);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.08);
+}
+
+.jd-req-item--star:hover {
+    border-color: #f59e0b;
+    box-shadow: 0 10px 25px rgba(245, 158, 11, 0.08);
+}
+
+.jd-check-icon { color: var(--blue-400); flex-shrink: 0; }
+.jd-star-icon  { color: #f59e0b; flex-shrink: 0; }
+
+/* ─── PERKS GRID ─── */
+.jd-perks-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.jd-perk-card {
+    background: var(--gray-50);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 24px;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.jd-perk-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--blue-400), var(--blue-600));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+}
+
+.jd-perk-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    border-color: var(--blue-100);
+    background: #fff;
+}
+.jd-perk-card:hover::after { transform: scaleX(1); }
+.jd-perk-card:hover .wcu-icon-circle {
+    background: var(--blue-400);
+    color: #ffffff;
+    transform: rotate(-5deg) scale(1.1);
+}
+
+.jd-perk-card p {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    line-height: 1.5;
+}
+
+/* ─── APPLY CTA (re-uses About CTA style) ─── */
+#jd-apply-cta { padding: 0; }
+
+.jd-apply-icon-wrap {
+    width: 68px;
+    height: 68px;
+    background: var(--blue-50);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--blue-400);
+    margin: 0 auto 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.jd-apply-desc {
+    font-size: 1.1rem;
+    color: var(--gray-700);
+    max-width: 620px;
+    margin: 0 auto 1.25rem;
+    line-height: 1.75;
+}
+
+.jd-posted-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+
+/* Extend btn-white / btn-ghost-white to support flex+icon */
+.btn-white,
+.btn-ghost-white {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+/* Not Found */
+.jd-not-found {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.jd-back-btn-plain {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--blue-50);
+    color: var(--blue-400);
+    border: 1px solid var(--blue-100);
+    border-radius: 50px;
+    padding: 0.6rem 1.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.jd-back-btn-plain:hover {
+    background: var(--blue-400);
+    color: #fff;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 992px) {
+    .jd-bento-grid { grid-template-columns: 1fr 1fr; }
+    .jd-perks-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+    .jd-hero-banner { padding: 8rem 0 5rem; min-height: 60vh; }
+    .jd-bento-grid { grid-template-columns: 1fr; }
+    .jd-perks-grid { grid-template-columns: 1fr; }
+    .cta-card { padding: 5rem 2rem; }
+    .cta-actions { flex-direction: column; align-items: center; }
+}

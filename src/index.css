@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Manrope:wght@600;700;800;900&display=swap');
+
+/* ─── VARIABLES & RESET ─── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --blue-50: #eff6ff;
+    --blue-100: #dbeafe;
+    --blue-200: #bfdbfe;
+    --blue-400: #2563eb;
+    --blue-500: #2563eb;
+    --blue-600: #2563eb;
+    --blue-700: #2563eb;
+    --blue-900: #1e3a8a;
+    --green-50: #f0fdf4;
+    --green-100: #dcfce7;
+    --green-500: #22c55e;
+    --green-600: #16a34a;
+    --orange-50: #fff7ed;
+    --orange-100: #ffedd5;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-700: #334155;
+    --gray-900: #0f172a;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --radius-lg: 1.25rem;
+    --radius-xl: 2rem;
+}
+
+html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--blue-400) var(--gray-50);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--gray-900);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('/assets/bg.png') center/cover no-repeat;
+    z-index: -1;
+    pointer-events: none;
+    will-change: transform;
+}
+
+/* ─── CUSTOM SCROLLBAR ─── */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--gray-50);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--blue-400);
+    border-radius: 5px;
+    border: 2px solid var(--gray-50);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #1d4ed8;
+}
+
+/* ─── UTILITY ─── */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+
+/* ─── SECTION COMMON ─── */
+section {
+    padding: 6rem 0;
+    position: relative;
+    background: transparent;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.section-label {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue-400);
+    margin-bottom: 0.75rem;
+}
+
+.section-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    letter-spacing: -0.025em;
+    color: black;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.section-sub {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+    max-width: 600px;
+    line-height: 1.7;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+
+/* ─── SHARED BUTTON STYLES ─── */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--blue-400));
+    color: #fff;
+    padding: 0.85rem 2rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.35);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 50px rgba(59, 130, 246, 0.55);
+}
+
+.text-blue {
+    color: var(--blue-400);
+}
+
+/* ─── WCU SHARED ─── */
+.wcu-header {
+    margin: 0 auto 2.5rem;
+    max-width: 800px;
+    text-align: center;
+}
+
+.wcu-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--gray-900);
+}
+
+/* ─── BUFFERING LOADER ─── */
+.page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.page-loader.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* The spinning ring */
+.page-loader__ring {
+    width: 56px;
+    height: 56px;
+    position: relative;
+}
+
+.page-loader__ring::before,
+.page-loader__ring::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 4px solid transparent;
+}
+
+/* Outer arc */
+.page-loader__ring::before {
+    border-top-color: var(--blue-400);
+    border-right-color: var(--blue-400);
+    animation: spin 0.75s linear infinite;
+    box-shadow: 0 0 14px rgba(37, 99, 235, 0.4);
+}
+
+/* Inner arc (counter-spin, lighter) */
+.page-loader__ring::after {
+    inset: 8px;
+    border-bottom-color: #93c5fd;
+    border-left-color: #93c5fd;
+    animation: spin 0.75s linear infinite reverse;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
