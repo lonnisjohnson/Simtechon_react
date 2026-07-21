@@ -12,6 +12,7 @@ import Login from './pages/Login/Login.jsx'
 import HRDashboard from './pages/HRDashboard/HRDashboard.jsx'
 import CEODashboard from './pages/CEODashboard/CEODashboard.jsx'
 import CandidateRegister from './pages/CandidateRegister/CandidateRegister.jsx'
+import ScrollToTopBtn from './components/ScrollToTopBtn/ScrollToTopBtn.jsx'
 import './index.css'
 
 function App() {
@@ -55,6 +56,7 @@ function App() {
         </Routes>
       </main>
       {!hideLayout && <Footer />}
+      <ScrollToTopBtn />
     </div>
   )
 }
