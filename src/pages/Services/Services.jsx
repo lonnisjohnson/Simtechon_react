@@ -2,11 +2,19 @@ import { Link } from 'react-router-dom'
 import { CheckCircle, ArrowRight } from 'lucide-react'
 import './Services.css'
 
+import hardwareImg    from '../../assets/hardware.jpg'
+import networkImg     from '../../assets/network.jpg'
+import softwareImg    from '../../assets/software.jpg'
+import manpowerImg    from '../../assets/ITmanpower.jpg'
+import projectImg     from '../../assets/project.jpg'
+import remoteImg      from '../../assets/remote_support.jpg'
+import onsiteImg      from '../../assets/onsite_support.jpg'
+
 const services = [
   {
     id: 'hardware',
     title: 'Hardware Support',
-    img: '/assets/hardware.jpg',
+    img: hardwareImg,
     alt: 'Hardware Support',
     desc: 'Expert troubleshooting, installation, and repairs for all your IT hardware. We ensure your devices are performing at their peak with minimal downtime, providing reliable fixes and proactive maintenance.',
     features: ['Troubleshooting & Repairs', 'Component Upgrades', 'New System Installation'],
@@ -15,7 +23,7 @@ const services = [
   {
     id: 'network',
     title: 'Network Support',
-    img: '/assets/network.jpg',
+    img: networkImg,
     alt: 'Network Support',
     desc: 'Comprehensive network setup, maintenance, and troubleshooting. We cater to both small businesses and large enterprises with secure, scalable solutions that keep your team connected and productive.',
     features: ['Secure Network Design', 'VPN & Remote Access', 'WiFi Optimization'],
@@ -24,7 +32,7 @@ const services = [
   {
     id: 'software',
     title: 'Software Support',
-    img: '/assets/software.jpg',
+    img: softwareImg,
     alt: 'Software Support',
     desc: 'Professional assistance for operating systems, office suites, and essential business software. We help you stay updated, secure, and fully optimized for your daily workflows.',
     features: ['OS Installation & Updates', 'Office Suite Support', 'Malware Protection'],
@@ -33,7 +41,7 @@ const services = [
   {
     id: 'manpower',
     title: 'IT Manpower Supply',
-    img: '/assets/ITmanpower.jpg',
+    img: manpowerImg,
     alt: 'IT Manpower Supply',
     desc: 'Skilled IT professionals for short and long-term assignments. We provide the expertise you need to scale your team quickly and efficiently, matching the right talent to your specific project needs.',
     features: ['Specialized IT Experts', 'Short & Long-term Contracts', 'Rapid Team Scaling'],
@@ -42,7 +50,7 @@ const services = [
   {
     id: 'project',
     title: 'Project Undertaking',
-    img: '/assets/project.jpg',
+    img: projectImg,
     alt: 'Project Undertaking',
     desc: 'Strategic project management and IT consultancy for complex IT projects. We deliver customized solutions from planning to execution, ensuring your digital transformation is seamless.',
     features: ['End-to-end Management', 'Strategic Consultancy', 'Digital Transformation'],
@@ -51,7 +59,7 @@ const services = [
   {
     id: 'remote',
     title: 'Remote Support',
-    img: '/assets/remote_support.jpg',
+    img: remoteImg,
     alt: 'Remote Support',
     desc: 'Quick and effective resolution of diverse IT issues via secure remote access. Get expert help instantly without waiting for an onsite visit, saving time and costs.',
     features: ['Instant Connectivity', '24/7 Availability', 'Secure Connections'],
@@ -60,7 +68,7 @@ const services = [
   {
     id: 'onsite',
     title: 'Onsite Support',
-    img: '/assets/onsite_support.jpg',
+    img: onsiteImg,
     alt: 'Onsite Support',
     desc: 'Physical IT presence for complex setups and emergency call-outs. Our experts come to you to resolve challenges that require hands-on attention and deep technical knowledge.',
     features: ['Emergency Call-outs', 'Physical Infrastructure', 'On-site Maintenance'],
@@ -114,7 +122,7 @@ function Services() {
                     ))}
                   </ul>
                   <Link to="/contact" className="btn-svc-quote">
-                     Request a Quote
+                    Request a Quote
                     <ArrowRight size={18} />
                   </Link>
                 </div>
