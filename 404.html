@@ -2,20 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Simtechon</title>
+    <title>SimtechON</title>
     <script>
-      // GitHub Pages SPA fix
-      // Encodes the full URL into a query string and redirects to index.html
-      // so React Router can pick up the route.
-      var segmentCount = 1; // 1 for /Simtechon_react/ base path
-      var l = window.location;
-      l.replace(
-        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?/' +
-        l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
-        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-        l.hash
-      );
+      // GitHub Pages HashRouter Fallback
+      // Converts any direct 404 route path to HashRouter format so it loads seamlessly
+      var path = window.location.pathname.replace(/^\/Simtechon_react/, '');
+      if (!path.startsWith('/')) path = '/' + path;
+      window.location.replace('/Simtechon_react/#' + path + window.location.search + window.location.hash);
     </script>
   </head>
   <body></body>
