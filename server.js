@@ -138,10 +138,10 @@ app.get('/api/candidates', async (req, res) => {
     const [rows] = await pool.execute(
       'SELECT * FROM candidates ORDER BY submitted_at DESC'
     )
-    res.json(rows)
+    res.json(Array.isArray(rows) ? rows : [])
   } catch (err) {
     console.error('GET /api/candidates error:', err)
-    res.status(500).json({ error: err.message })
+    res.status(500).json([])
   }
 })
 
@@ -164,10 +164,10 @@ app.patch('/api/candidates/:id/status', async (req, res) => {
 app.get('/api/jobs', async (req, res) => {
   try {
     const [rows] = await pool.execute('SELECT * FROM jobs ORDER BY created_at DESC')
-    res.json(rows)
+    res.json(Array.isArray(rows) ? rows : [])
   } catch (err) {
     console.error('GET /api/jobs error:', err)
-    res.status(500).json({ error: err.message })
+    res.status(500).json([])
   }
 })
 

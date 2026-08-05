@@ -105,9 +105,10 @@ function CEODashboard() {
       const res = await fetch(`${API_BASE}/api/candidates`)
       if (!res.ok) throw new Error(`Server error ${res.status}`)
       const data = await res.json()
-      setCandidates(data)
+      setCandidates(Array.isArray(data) ? data : [])
     } catch (err) {
       setFetchError('Could not load candidates: ' + err.message)
+      setCandidates([])
     } finally {
       setLoading(false)
     }

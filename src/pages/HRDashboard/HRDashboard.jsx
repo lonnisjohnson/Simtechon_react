@@ -82,9 +82,10 @@ function HRDashboard() {
     try {
       const res = await fetch(`${API_BASE}/api/jobs`)
       const data = await res.json()
-      setJobs(data)
+      setJobs(Array.isArray(data) ? data : [])
     } catch (err) {
       console.error(err)
+      setJobs([])
     } finally {
       setLoadingJobs(false)
     }

@@ -51,14 +51,17 @@ export default function CandidateRegister() {
   const [showPw, setShowPw] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [qualInput, setQualInput] = useState({ degree: '', institution: '', year: '' })
-  
+
   const [jobs, setJobs] = useState([])
 
   useEffect(() => {
     fetch(`${API_BASE}/api/jobs`)
       .then(res => res.json())
-      .then(data => setJobs(data))
-      .catch(err => console.error(err))
+      .then(data => setJobs(Array.isArray(data) ? data : []))
+      .catch(err => {
+        console.error(err)
+        setJobs([])
+      })
   }, [])
 
   const [form, setForm] = useState({
@@ -167,26 +170,26 @@ export default function CandidateRegister() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          firstName:           form.firstName,
-          lastName:            form.lastName,
-          personalEmail:       form.personalEmail,
-          phone:               form.phone,
-          username:            toUsername(form.firstName, form.lastName),
-          companyEmail:        toCompanyEmail(form.firstName, form.lastName),
-          availableFrom:       form.availableFrom,
-          availableTo:         form.availableTo,
-          timeFrom:            form.timeFrom,
-          timeTo:              form.timeTo,
-          hoursPerDay:         form.hoursPerDay,
-          hoursPerWeek:        form.hoursPerWeek,
-          hoursPerMonth:       form.hoursPerMonth,
-          workSkills:          form.workSkills,
-          qualifications:      form.qualifications,
-          completedCourses:    form.completedCourses,
-          validCertificates:   form.validCertificates,
-          expectedHourlyRate:  form.expectedHourlyRate,
-          expectedWeeklyRate:  form.expectedWeeklyRate,
-          appliedFor:          form.appliedFor,
+          firstName: form.firstName,
+          lastName: form.lastName,
+          personalEmail: form.personalEmail,
+          phone: form.phone,
+          username: toUsername(form.firstName, form.lastName),
+          companyEmail: toCompanyEmail(form.firstName, form.lastName),
+          availableFrom: form.availableFrom,
+          availableTo: form.availableTo,
+          timeFrom: form.timeFrom,
+          timeTo: form.timeTo,
+          hoursPerDay: form.hoursPerDay,
+          hoursPerWeek: form.hoursPerWeek,
+          hoursPerMonth: form.hoursPerMonth,
+          workSkills: form.workSkills,
+          qualifications: form.qualifications,
+          completedCourses: form.completedCourses,
+          validCertificates: form.validCertificates,
+          expectedHourlyRate: form.expectedHourlyRate,
+          expectedWeeklyRate: form.expectedWeeklyRate,
+          appliedFor: form.appliedFor,
         }),
       })
 
@@ -266,7 +269,7 @@ export default function CandidateRegister() {
                   </div>
                 </div>
 
-                
+
 
                 <div className="cr-row-2">
                   <div className="cr-field">
