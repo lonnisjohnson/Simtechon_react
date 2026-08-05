@@ -1,4 +1,3 @@
-import { useState, useLayoutEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/Header/Header.jsx'
 import Footer from './components/Footer/Footer.jsx'
@@ -16,33 +15,15 @@ import ScrollToTopBtn from './components/ScrollToTopBtn/ScrollToTopBtn.jsx'
 import './index.css'
 
 function App() {
-
   const location = useLocation()
-  const [displayLocation, setDisplayLocation] = useState(location)
-  const [loading, setLoading] = useState(false)
-  const hideLayout = ['/hr-dashboard', '/ceo-dashboard', '/candidate-register'].includes(location.pathname)
-
-  useLayoutEffect(() => {
-    setLoading(true)
-    const timer = setTimeout(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-      setDisplayLocation(location)
-      setLoading(false)
-    }, 450)
-    return () => clearTimeout(timer)
-  }, [location.pathname])
+  const currentPath = location.pathname.replace(/\/$/, '')
+  const hideLayout = ['/hr-dashboard', '/ceo-dashboard', '/candidate-register'].includes(currentPath)
 
   return (
     <div className="app-container">
-
-      {/* Buffering spinner overlay */}
-      <div className={`page-loader ${loading ? 'active' : ''}`}>
-        <div className="page-loader__ring" />
-      </div>
-
       {!hideLayout && <Header />}
       <main style={{ padding: hideLayout ? 0 : undefined }}>
-        <Routes location={displayLocation}>
+        <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
@@ -53,6 +34,7 @@ function App() {
           <Route path="/hr-dashboard" element={<HRDashboard />} />
           <Route path="/ceo-dashboard" element={<CEODashboard />} />
           <Route path="/candidate-register" element={<CandidateRegister />} />
+          <Route path="*" element={<Home />} />
         </Routes>
       </main>
       {!hideLayout && <Footer />}
