@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { API_BASE } from '../../config'
 import './CEODashboard.css'
 
 /* ── Sidebar nav config ──────────────────────────────────────────────────── */
@@ -101,7 +102,7 @@ function CEODashboard() {
     setLoading(true)
     setFetchError('')
     try {
-      const res = await fetch('/api/candidates')
+      const res = await fetch(`${API_BASE}/api/candidates`)
       if (!res.ok) throw new Error(`Server error ${res.status}`)
       const data = await res.json()
       setCandidates(data)
@@ -115,7 +116,7 @@ function CEODashboard() {
   /* ── Update candidate status ── */
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await fetch(`/api/candidates/${id}/status`, {
+      await fetch(`${API_BASE}/api/candidates/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),

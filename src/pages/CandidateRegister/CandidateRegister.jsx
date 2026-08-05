@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { API_BASE } from '../../config'
 import {
   User, Mail, Phone, Calendar, Clock, Briefcase, BookOpen,
   Award, FileText, Euro, Key, Eye, EyeOff, CheckCircle,
@@ -54,7 +55,7 @@ export default function CandidateRegister() {
   const [jobs, setJobs] = useState([])
 
   useEffect(() => {
-    fetch('/api/jobs')
+    fetch(`${API_BASE}/api/jobs`)
       .then(res => res.json())
       .then(data => setJobs(data))
       .catch(err => console.error(err))
@@ -162,7 +163,7 @@ export default function CandidateRegister() {
     setSubmitError('')
 
     try {
-      const res = await fetch('/api/candidates', {
+      const res = await fetch(`${API_BASE}/api/candidates`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

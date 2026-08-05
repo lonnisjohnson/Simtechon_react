@@ -9,6 +9,11 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+// Root status endpoint
+app.get('/', (req, res) => {
+  res.json({ message: '🚀 Simtechon API Backend is running live!' })
+})
+
 // ── MySQL connection pool ──────────────────────────────────────────────────
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
@@ -243,11 +248,11 @@ app.patch('/api/jobs/:job_id/status', async (req, res) => {
 })
 
 // ── Start ─────────────────────────────────────────────────────────────────
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 initDB()
-  .then(() => app.listen(PORT, () => console.log(`🚀 API server running at http://localhost:${PORT}`)))
+  .then(() => app.listen(PORT, () => console.log(`🚀 API server running on port ${PORT}`)))
   .catch((err) => {
     console.error('❌ Failed to connect to MySQL:', err.message)
-    console.error('   ➜ Check your .env credentials (DB_HOST, DB_USER, DB_PASS, DB_NAME)')
+    console.error('   ➜ Check your environment variables (DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT)')
     process.exit(1)
   })

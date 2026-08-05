@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { API_BASE } from '../../config'
 import './HRDashboard.css'
 
 const navItems = [
@@ -79,7 +80,7 @@ function HRDashboard() {
   const fetchJobs = async () => {
     setLoadingJobs(true)
     try {
-      const res = await fetch('/api/jobs')
+      const res = await fetch(`${API_BASE}/api/jobs`)
       const data = await res.json()
       setJobs(data)
     } catch (err) {
@@ -97,7 +98,7 @@ function HRDashboard() {
     e.preventDefault()
     if (!newJob.title) return
     try {
-      const res = await fetch('/api/jobs', {
+      const res = await fetch(`${API_BASE}/api/jobs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newJob)
@@ -125,7 +126,7 @@ function HRDashboard() {
     if (!editJob.title) return
     setEditSaving(true)
     try {
-      const res = await fetch(`/api/jobs/${editJob.job_id}`, {
+      const res = await fetch(`${API_BASE}/api/jobs/${editJob.job_id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editJob)
@@ -137,7 +138,7 @@ function HRDashboard() {
 
   const handleStatusChange = async (jobId, status) => {
     try {
-      await fetch(`/api/jobs/${jobId}/status`, {
+      await fetch(`${API_BASE}/api/jobs/${jobId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
