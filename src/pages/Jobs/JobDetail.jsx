@@ -253,8 +253,7 @@ function JobDetail() {
             </h2>
             <p className="jd-apply-desc">
               To register your interest for the <strong>{job.title}</strong> role, send us a message
-              through our <strong>Contact page</strong>. Mention the job title, your experience level,
-              and include your CV or LinkedIn profile link. Our HR team will respond within{' '}
+              through our <strong>Contact page</strong>. Our HR team will respond within{' '}
               <strong>2–3 business days</strong>.
             </p>
             <div className="jd-posted-row">

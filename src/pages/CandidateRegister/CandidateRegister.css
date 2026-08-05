@@ -1,4 +1,14 @@
 /* ── RESET & PAGE ── */
+@keyframes cr-spin { to { transform: rotate(360deg); } }
+.cr-spin { animation: cr-spin 0.8s linear infinite; display: inline-block; }
+.cr-submit-error {
+  color: #e53e3e;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: 0.75rem;
+  font-weight: 500;
+}
+
 .cr-page {
   min-height: 100vh;
   display: flex;
@@ -565,3 +575,140 @@ textarea.err { border-color: #ef4444; background: #fff5f5; }
   .cr-stepper { gap: 0; }
   .cr-step-label { display: none; }
 }
+
+/* ── QUALIFICATION BUILDER ── */
+.cr-qual-builder {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  transition: border-color 0.2s;
+}
+
+.cr-qual-builder.err-border {
+  border-color: #ef4444;
+}
+
+.cr-qual-inputs {
+  display: flex;
+  gap: 0.6rem;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.cr-qual-inputs .cr-input-wrap {
+  min-width: 120px;
+}
+
+.cr-qual-add-btn {
+  padding: 0 1.1rem;
+  height: 42px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  align-self: stretch;
+  transition: opacity 0.18s, transform 0.14s;
+  letter-spacing: 0.02em;
+}
+
+.cr-qual-add-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.cr-qual-add-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Qualification cards list ── */
+.cr-qual-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.cr-qual-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  padding: 0.65rem 0.9rem;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
+  animation: qual-slide-in 0.22s ease;
+}
+
+@keyframes qual-slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cr-qual-card-body {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.cr-qual-degree {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #1e3a8a;
+}
+
+.cr-qual-inst {
+  font-size: 0.8rem;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+}
+
+.cr-qual-year {
+  font-size: 0.78rem;
+  color: #64748b;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.cr-qual-remove {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid #fca5a5;
+  color: #ef4444;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.cr-qual-remove:hover {
+  background: #fee2e2;
+}
+
+@media (max-width: 640px) {
+  .cr-qual-inputs { flex-direction: column; }
+  .cr-qual-add-btn { width: 100%; justify-content: center; }
+}
+

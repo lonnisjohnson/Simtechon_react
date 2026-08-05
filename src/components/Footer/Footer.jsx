@@ -53,16 +53,6 @@ function Footer() {
                 <span>Dublin, Ireland</span>
               </div>
             </div>
-
-            <div className="footer-newsletter">
-              <h5>Newsletter</h5>
-              <form className="mini-newsletter" onSubmit={e => e.preventDefault()}>
-                <input type="email" placeholder="Your email" />
-                <button type="submit">
-                  <Send size={16} />
-                </button>
-              </form>
-            </div>
           </div>
         </div>
 

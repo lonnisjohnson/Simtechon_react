@@ -16,7 +16,6 @@
 
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: #ffffff;
-  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
 
   /* Hidden by default */
   opacity: 0;
@@ -31,12 +30,26 @@
   pointer-events: all;
 }
 
-.scroll-top-btn:hover {
-  background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
-  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.55);
-  transform: translateY(-3px) scale(1.08);
-}
+
 
 .scroll-top-btn:active {
   transform: translateY(0) scale(0.96);
+}
+
+/* Theme overrides for HR Dashboard (Green) */
+.scroll-top-btn.theme-hr {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+}
+
+.scroll-top-btn.theme-hr:hover {
+  background: linear-gradient(135deg, #047857, #065f46) !important;
+}
+
+/* Theme overrides for CEO Dashboard (Orange) */
+.scroll-top-btn.theme-ceo {
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+}
+
+.scroll-top-btn.theme-ceo:hover {
+  background: linear-gradient(135deg, #b45309, #92400e) !important;
 }

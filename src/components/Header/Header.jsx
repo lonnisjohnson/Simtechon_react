@@ -22,7 +22,7 @@ function Header() {
   const toggleMenu = () => setMenuOpen(prev => !prev)
 
   return (
-    <nav id="navbar" className={scrolled ? 'scrolled' : ''}>
+    <nav id="navbar" className={`nav-header${scrolled ? ' scrolled' : ''}`}>
       <div className="nav-inner">
         <Link to="/" className="nav-logo">
           <span className="nav-logo-text">Simtech<span>ON</span></span>

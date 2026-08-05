@@ -24,7 +24,7 @@
 }
 
 /* ─── NAVBAR ─── */
-nav {
+.nav-header {
     position: fixed;
     top: 0;
     left: 0;
@@ -79,7 +79,7 @@ nav.scrolled {
 .nav-links a {
     text-decoration: none;
     color: var(--text-muted);
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 500;
     transition: color 0.2s;
     position: relative;

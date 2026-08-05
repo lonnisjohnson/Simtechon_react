@@ -73,7 +73,7 @@ function Contact() {
 
   const closePopup = () => setPopup(null)
 
-  const selectedLabel = serviceOptions.find(o => o.value === selectedService)?.label || 'Select a service'
+  const selectedLabel = serviceOptions.find(o => o.value === selectedService)?.label || 'Enquiry for'
 
   return (
     <div>

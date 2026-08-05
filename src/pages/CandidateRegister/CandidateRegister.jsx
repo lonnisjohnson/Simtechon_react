@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   User, Mail, Phone, Calendar, Clock, Briefcase, BookOpen,
   Award, FileText, Euro, Key, Eye, EyeOff, CheckCircle,
@@ -18,10 +18,10 @@ const toCompanyEmail = (first, last) => {
 }
 
 const pwChecks = (pw) => ({
-  length:  pw.length >= 8,
-  upper:   /[A-Z]/.test(pw),
-  lower:   /[a-z]/.test(pw),
-  number:  /[0-9]/.test(pw),
+  length: pw.length >= 8,
+  upper: /[A-Z]/.test(pw),
+  lower: /[a-z]/.test(pw),
+  number: /[0-9]/.test(pw),
 })
 
 function PwRule({ ok, label }) {
@@ -45,8 +45,20 @@ export default function CandidateRegister() {
   /* ── form state ── */
   const [step, setStep] = useState(0)
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [qualInput, setQualInput] = useState({ degree: '', institution: '', year: '' })
+  
+  const [jobs, setJobs] = useState([])
+
+  useEffect(() => {
+    fetch('/api/jobs')
+      .then(res => res.json())
+      .then(data => setJobs(data))
+      .catch(err => console.error(err))
+  }, [])
 
   const [form, setForm] = useState({
     // Step 1 – Personal Info
@@ -54,6 +66,7 @@ export default function CandidateRegister() {
     lastName: '',
     personalEmail: '',
     phone: '',
+    appliedFor: '',
     // Step 2 – Availability
     availableFrom: '',
     availableTo: '',
@@ -64,10 +77,11 @@ export default function CandidateRegister() {
     hoursPerMonth: '',
     // Step 3 – Skills & Qualifications
     workSkills: '',
-    qualifications: '',
+    qualifications: [],
     completedCourses: '',
     validCertificates: '',
-    invoiceRate: '',
+    expectedHourlyRate: '',
+    expectedWeeklyRate: '',
     // Step 4 – Account Setup
     password: '',
     confirmPassword: '',
@@ -76,31 +90,54 @@ export default function CandidateRegister() {
   const [errors, setErrors] = useState({})
 
   /* ── derived (auto-generated) ── */
-  const username   = toUsername(form.firstName, form.lastName)
+  const username = toUsername(form.firstName, form.lastName)
   const companyEmail = toCompanyEmail(form.firstName, form.lastName)
 
   /* ── handlers ── */
   const set = (field) => (e) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
+  const addQual = () => {
+    const { degree, institution, year } = qualInput
+    if (!degree.trim()) return
+    setForm((prev) => ({
+      ...prev,
+      qualifications: [...prev.qualifications, { degree: degree.trim(), institution: institution.trim(), year: year.trim() }],
+    }))
+    setQualInput({ degree: '', institution: '', year: '' })
+    setErrors((prev) => ({ ...prev, qualifications: undefined }))
+  }
+
+  const removeQual = (idx) =>
+    setForm((prev) => ({
+      ...prev,
+      qualifications: prev.qualifications.filter((_, i) => i !== idx),
+    }))
+
   const validate = () => {
     const errs = {}
     if (step === 0) {
+      if (!form.appliedFor) errs.appliedFor = 'Please select a job position'
       if (!form.firstName.trim()) errs.firstName = 'Required'
-      if (!form.lastName.trim())  errs.lastName  = 'Required'
+      if (!form.lastName.trim()) errs.lastName = 'Required'
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.personalEmail))
         errs.personalEmail = 'Enter a valid email'
       if (!form.phone.trim()) errs.phone = 'Required'
     }
     if (step === 1) {
+      const todayStr = new Date().toLocaleDateString('en-CA')
       if (!form.availableFrom) errs.availableFrom = 'Required'
-      if (!form.availableTo)   errs.availableTo   = 'Required'
-      if (!form.timeFrom)      errs.timeFrom      = 'Required'
-      if (!form.timeTo)        errs.timeTo        = 'Required'
+      else if (form.availableFrom < todayStr) errs.availableFrom = 'Date cannot be in the past'
+
+      if (!form.availableTo) errs.availableTo = 'Required'
+      else if (form.availableTo < (form.availableFrom || todayStr)) errs.availableTo = 'Date cannot be before Available From date'
+
+      if (!form.timeFrom) errs.timeFrom = 'Required'
+      if (!form.timeTo) errs.timeTo = 'Required'
     }
     if (step === 2) {
-      if (!form.workSkills.trim())   errs.workSkills   = 'Required'
-      if (!form.qualifications.trim()) errs.qualifications = 'Required'
+      if (!form.workSkills.trim()) errs.workSkills = 'Required'
+      if (!form.qualifications.length) errs.qualifications = 'Add at least one qualification'
     }
     if (step === 3) {
       const pw = form.password
@@ -117,10 +154,50 @@ export default function CandidateRegister() {
   const next = () => { if (validate()) setStep((s) => s + 1) }
   const back = () => setStep((s) => s - 1)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validate()) return
-    setSubmitted(true)
+
+    setSubmitting(true)
+    setSubmitError('')
+
+    try {
+      const res = await fetch('/api/candidates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName:           form.firstName,
+          lastName:            form.lastName,
+          personalEmail:       form.personalEmail,
+          phone:               form.phone,
+          username:            toUsername(form.firstName, form.lastName),
+          companyEmail:        toCompanyEmail(form.firstName, form.lastName),
+          availableFrom:       form.availableFrom,
+          availableTo:         form.availableTo,
+          timeFrom:            form.timeFrom,
+          timeTo:              form.timeTo,
+          hoursPerDay:         form.hoursPerDay,
+          hoursPerWeek:        form.hoursPerWeek,
+          hoursPerMonth:       form.hoursPerMonth,
+          workSkills:          form.workSkills,
+          qualifications:      form.qualifications,
+          completedCourses:    form.completedCourses,
+          validCertificates:   form.validCertificates,
+          expectedHourlyRate:  form.expectedHourlyRate,
+          expectedWeeklyRate:  form.expectedWeeklyRate,
+          appliedFor:          form.appliedFor,
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Server error')
+
+      setSubmitted(true)
+    } catch (err) {
+      setSubmitError('❌ Failed to submit: ' + err.message)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   /* ── pw strength ── */
@@ -187,6 +264,8 @@ export default function CandidateRegister() {
                     <p>Provide your legal name and contact details.</p>
                   </div>
                 </div>
+
+                
 
                 <div className="cr-row-2">
                   <div className="cr-field">
@@ -256,8 +335,27 @@ export default function CandidateRegister() {
                   {errors.phone && <span className="cr-error">{errors.phone}</span>}
                   <small>Include country code (e.g. +353 for Ireland)</small>
                 </div>
+                <div className="cr-field">
+                  <label>Applying For (Job Role) <span>*</span></label>
+                  <div className="cr-input-wrap">
+                    <Briefcase size={16} className="cr-icon" />
+                    <select
+                      id="appliedFor"
+                      value={form.appliedFor}
+                      onChange={set('appliedFor')}
+                      className={errors.appliedFor ? 'err' : ''}
+                      style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#0f172a', fontSize: '0.95rem', outline: 'none', appearance: 'auto' }}
+                    >
+                      <option value="">-- Select a Job Position --</option>
+                      {jobs.map(job => (
+                        <option key={job.id} value={job.title}>{job.title}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {errors.appliedFor && <span className="cr-error">{errors.appliedFor}</span>}
+                </div>
 
-                {/* Auto-generated fields preview */}
+                {/* Auto-generated fields preview
                 <div className="cr-auto-block">
                   <div className="cr-auto-header">
                     <Key size={14} /> Auto-generated fields (set after submission)
@@ -272,7 +370,7 @@ export default function CandidateRegister() {
                       <div className="cr-auto-value">{companyEmail || 'first.lastname@simtechon.com'}</div>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             )}
 
@@ -295,6 +393,7 @@ export default function CandidateRegister() {
                       <input
                         id="availableFrom"
                         type="date"
+                        min={new Date().toLocaleDateString('en-CA')}
                         value={form.availableFrom}
                         onChange={set('availableFrom')}
                         className={errors.availableFrom ? 'err' : ''}
@@ -310,6 +409,7 @@ export default function CandidateRegister() {
                       <input
                         id="availableTo"
                         type="date"
+                        min={form.availableFrom || new Date().toLocaleDateString('en-CA')}
                         value={form.availableTo}
                         onChange={set('availableTo')}
                         className={errors.availableTo ? 'err' : ''}
@@ -400,6 +500,42 @@ export default function CandidateRegister() {
                     <small>How many hours per month</small>
                   </div>
                 </div>
+
+                {/* Expecting Rate */}
+                <div className="cr-row-2">
+                  <div className="cr-field">
+                    <label>Expecting Rate – Hourly (€)</label>
+                    <div className="cr-input-wrap">
+                      <Euro size={16} className="cr-icon" />
+                      <input
+                        id="expectedHourlyRate"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="e.g. 25.00"
+                        value={form.expectedHourlyRate}
+                        onChange={set('expectedHourlyRate')}
+                      />
+                    </div>
+                    <small>Your expected hourly rate in Euros</small>
+                  </div>
+                  <div className="cr-field">
+                    <label>Expecting Rate – Weekly (€)</label>
+                    <div className="cr-input-wrap">
+                      <Euro size={16} className="cr-icon" />
+                      <input
+                        id="expectedWeeklyRate"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="e.g. 1000.00"
+                        value={form.expectedWeeklyRate}
+                        onChange={set('expectedWeeklyRate')}
+                      />
+                    </div>
+                    <small>Your expected weekly rate in Euros</small>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -430,16 +566,76 @@ export default function CandidateRegister() {
 
                 <div className="cr-field">
                   <label>Qualifications <span>*</span></label>
-                  <textarea
-                    id="qualifications"
-                    rows={3}
-                    placeholder="List degrees, diplomas, or professional qualifications gained (e.g. BSc Computer Science, CompTIA A+)…"
-                    value={form.qualifications}
-                    onChange={set('qualifications')}
-                    className={errors.qualifications ? 'err' : ''}
-                  />
+
+                  {/* ── Qualification entry builder ── */}
+                  <div className={`cr-qual-builder ${errors.qualifications ? 'err-border' : ''}`}>
+                    <div className="cr-qual-inputs">
+                      <div className="cr-input-wrap" style={{ flex: 2 }}>
+                        <BookOpen size={16} className="cr-icon" />
+                        <input
+                          id="qual-degree"
+                          type="text"
+                          placeholder="Degree / Diploma / Title"
+                          value={qualInput.degree}
+                          onChange={(e) => setQualInput((p) => ({ ...p, degree: e.target.value }))}
+                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addQual())}
+                        />
+                      </div>
+                      <div className="cr-input-wrap" style={{ flex: 2 }}>
+                        <Award size={16} className="cr-icon" />
+                        <input
+                          id="qual-institution"
+                          type="text"
+                          placeholder="Institution / University"
+                          value={qualInput.institution}
+                          onChange={(e) => setQualInput((p) => ({ ...p, institution: e.target.value }))}
+                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addQual())}
+                        />
+                      </div>
+                      <div className="cr-input-wrap" style={{ flex: 1 }}>
+                        <Calendar size={16} className="cr-icon" />
+                        <input
+                          id="qual-year"
+                          type="number"
+                          min="1950"
+                          max={new Date().getFullYear()}
+                          placeholder="Year"
+                          value={qualInput.year}
+                          onChange={(e) => setQualInput((p) => ({ ...p, year: e.target.value }))}
+                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addQual())}
+                        />
+                      </div>
+                      <button type="button" className="cr-qual-add-btn" onClick={addQual}>
+                        + Add
+                      </button>
+                    </div>
+
+                    {/* ── Added qualification cards ── */}
+                    {form.qualifications.length > 0 && (
+                      <ul className="cr-qual-list">
+                        {form.qualifications.map((q, i) => (
+                          <li key={i} className="cr-qual-card">
+                            <div className="cr-qual-card-body">
+                              <span className="cr-qual-degree">{q.degree}</span>
+                              {q.institution && <span className="cr-qual-inst">{q.institution}</span>}
+                              {q.year && <span className="cr-qual-year">{q.year}</span>}
+                            </div>
+                            <button
+                              type="button"
+                              className="cr-qual-remove"
+                              aria-label="Remove"
+                              onClick={() => removeQual(i)}
+                            >
+                              ✕
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
                   {errors.qualifications && <span className="cr-error">{errors.qualifications}</span>}
-                  <small>What qualifications have you gained?</small>
+                  <small>Enter each qualification and press <strong>+ Add</strong> or <kbd>Enter</kbd></small>
                 </div>
 
                 <div className="cr-field">
@@ -466,22 +662,7 @@ export default function CandidateRegister() {
                   <small>Valid certificates currently held</small>
                 </div>
 
-                <div className="cr-field">
-                  <label>Invoice Rate (€)</label>
-                  <div className="cr-input-wrap">
-                    <Euro size={16} className="cr-icon" />
-                    <input
-                      id="invoiceRate"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="e.g. 25.00"
-                      value={form.invoiceRate}
-                      onChange={set('invoiceRate')}
-                    />
-                  </div>
-                  <small>Your hourly invoice rate in Euros</small>
-                </div>
+
               </div>
             )}
 
@@ -543,7 +724,7 @@ export default function CandidateRegister() {
                   {form.password && (
                     <div className="cr-pw-strength">
                       <div className="cr-pw-bar">
-                        {[0,1,2,3].map((i) => (
+                        {[0, 1, 2, 3].map((i) => (
                           <div key={i} className={`cr-pw-seg ${i < strength ? `s${strength}` : ''}`} />
                         ))}
                       </div>
@@ -555,8 +736,8 @@ export default function CandidateRegister() {
 
                   <div className="cr-pw-rules">
                     <PwRule ok={checks.length} label="At least 8 characters" />
-                    <PwRule ok={checks.upper}  label="One uppercase letter" />
-                    <PwRule ok={checks.lower}  label="One lowercase letter" />
+                    <PwRule ok={checks.upper} label="One uppercase letter" />
+                    <PwRule ok={checks.lower} label="One lowercase letter" />
                     <PwRule ok={checks.number} label="One number" />
                   </div>
                 </div>
@@ -589,14 +770,17 @@ export default function CandidateRegister() {
                   ← Back
                 </button>
               )}
-              <button type="submit" className="cr-btn-next">
+              <button type="submit" className="cr-btn-next" disabled={submitting}>
                 {step === STEPS.length - 1 ? (
-                  <><CheckCircle size={17} /> Submit Registration</>
+                  submitting
+                    ? <><Loader size={17} className="cr-spin" /> Saving…</>
+                    : <><CheckCircle size={17} /> Submit Registration</>
                 ) : (
                   <>Next <ChevronRight size={17} /></>
                 )}
               </button>
             </div>
+            {submitError && <p className="cr-submit-error">{submitError}</p>}
           </form>
         </div>
       </main>
