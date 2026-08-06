@@ -138,6 +138,10 @@ export default function CandidateRegister() {
 
       if (!form.timeFrom) errs.timeFrom = 'Required'
       if (!form.timeTo) errs.timeTo = 'Required'
+
+      if (!form.hoursPerDay) errs.hoursPerDay = 'Required'
+      if (!form.hoursPerWeek) errs.hoursPerWeek = 'Required'
+      if (!form.hoursPerMonth) errs.hoursPerMonth = 'Required'
     }
     if (step === 2) {
       if (!form.workSkills.trim()) errs.workSkills = 'Required'
@@ -460,7 +464,7 @@ export default function CandidateRegister() {
 
                 <div className="cr-row-3">
                   <div className="cr-field">
-                    <label>Hours / Day</label>
+                    <label>Hours / Day <span>*</span></label>
                     <div className="cr-input-wrap">
                       <Clock size={16} className="cr-icon" />
                       <input
@@ -470,12 +474,14 @@ export default function CandidateRegister() {
                         placeholder="e.g. 8"
                         value={form.hoursPerDay}
                         onChange={set('hoursPerDay')}
+                        className={errors.hoursPerDay ? 'err' : ''}
                       />
                     </div>
+                    {errors.hoursPerDay && <span className="cr-error">{errors.hoursPerDay}</span>}
                     <small>How many hours per day</small>
                   </div>
                   <div className="cr-field">
-                    <label>Hours / Week</label>
+                    <label>Hours / Week <span>*</span></label>
                     <div className="cr-input-wrap">
                       <Clock size={16} className="cr-icon" />
                       <input
@@ -485,12 +491,14 @@ export default function CandidateRegister() {
                         placeholder="e.g. 40"
                         value={form.hoursPerWeek}
                         onChange={set('hoursPerWeek')}
+                        className={errors.hoursPerWeek ? 'err' : ''}
                       />
                     </div>
+                    {errors.hoursPerWeek && <span className="cr-error">{errors.hoursPerWeek}</span>}
                     <small>How many hours per week</small>
                   </div>
                   <div className="cr-field">
-                    <label>Hours / Month</label>
+                    <label>Hours / Month <span>*</span></label>
                     <div className="cr-input-wrap">
                       <Clock size={16} className="cr-icon" />
                       <input
@@ -500,8 +508,10 @@ export default function CandidateRegister() {
                         placeholder="e.g. 160"
                         value={form.hoursPerMonth}
                         onChange={set('hoursPerMonth')}
+                        className={errors.hoursPerMonth ? 'err' : ''}
                       />
                     </div>
+                    {errors.hoursPerMonth && <span className="cr-error">{errors.hoursPerMonth}</span>}
                     <small>How many hours per month</small>
                   </div>
                 </div>

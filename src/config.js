@@ -1,3 +1,6 @@
 // Centralized API Base URL configuration
-// Points directly to the live backend server on Render
+// In local development (npm run dev), points to local Node server on port 3001
+// export const API_BASE = import.meta.env.DEV
+//   ? 'http://localhost:3001'
+//   : 'https://simtechon-react.onrender.com'
 export const API_BASE = 'https://simtechon-react.onrender.com'

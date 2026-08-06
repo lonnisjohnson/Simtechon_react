@@ -17,10 +17,10 @@ function fmtTime(t) {
 }
 
 const STATUS_META = {
-  Pending:     { class: 'cd-status--pending',     label: 'Pending Review' },
-  Shortlisted: { class: 'cd-status--shortlisted',  label: 'Shortlisted' },
-  Selected:    { class: 'cd-status--selected',     label: 'Selected 🎉' },
-  Rejected:    { class: 'cd-status--rejected',     label: 'Not Selected' },
+  Pending: { class: 'cd-status--pending', label: 'Pending' },
+  Shortlisted: { class: 'cd-status--shortlisted', label: 'Shortlisted' },
+  Selected: { class: 'cd-status--selected', label: 'Selected' },
+  Rejected: { class: 'cd-status--rejected', label: 'Rejected' },
 }
 
 // ── Main Component ───────────────────────────────────────────────────────────
@@ -88,7 +88,6 @@ function CandidateDashboard() {
           </div>
           <div className="cd-avatar-info">
             <strong>{candidate.first_name} {candidate.last_name}</strong>
-            <span>{candidate.id}</span>
           </div>
         </div>
 
@@ -125,9 +124,6 @@ function CandidateDashboard() {
           <h1 className="cd-topbar-title">
             {activeView === 'applications' ? 'My Applications' : 'My Profile'}
           </h1>
-          <div className={`cd-topbar-status ${statusMeta.class}`}>
-            {statusMeta.label}
-          </div>
         </header>
 
         <div className="cd-content">
@@ -147,25 +143,6 @@ function CandidateDashboard() {
 function ApplicationsView({ candidate, statusMeta }) {
   return (
     <div className="cd-view">
-      {/* Status hero card */}
-      <div className={`cd-status-hero ${statusMeta.class}`}>
-        <div className="cd-status-hero-icon">
-          <span className="material-symbols-rounded">
-            {candidate.status === 'Selected' ? 'verified' :
-             candidate.status === 'Rejected' ? 'cancel' :
-             candidate.status === 'Shortlisted' ? 'star' : 'hourglass_empty'}
-          </span>
-        </div>
-        <div>
-          <div className="cd-status-hero-label">Application Status</div>
-          <div className="cd-status-hero-value">{statusMeta.label}</div>
-          {candidate.status === 'Pending' && <p>Your application is being reviewed by our HR team. We'll update you soon.</p>}
-          {candidate.status === 'Shortlisted' && <p>Great news! You've been shortlisted. Our HR team will contact you shortly.</p>}
-          {candidate.status === 'Selected' && <p>Congratulations! You have been selected. Our team will reach out with next steps.</p>}
-          {candidate.status === 'Rejected' && <p>Thank you for your interest. Unfortunately, we won't be moving forward at this time.</p>}
-        </div>
-      </div>
-
       {/* Application card */}
       <h2 className="cd-section-title">Application Details</h2>
       <div className="cd-app-card">
@@ -200,42 +177,6 @@ function ApplicationsView({ candidate, statusMeta }) {
           </div>
         </div>
       </div>
-
-      {/* Availability summary */}
-      <h2 className="cd-section-title">Availability Overview</h2>
-      <div className="cd-grid-3">
-        <div className="cd-stat-card">
-          <span className="material-symbols-rounded">schedule</span>
-          <div className="cd-stat-val">{candidate.hours_per_day ?? '—'}</div>
-          <div className="cd-stat-label">Hours / Day</div>
-        </div>
-        <div className="cd-stat-card">
-          <span className="material-symbols-rounded">date_range</span>
-          <div className="cd-stat-val">{candidate.hours_per_week ?? '—'}</div>
-          <div className="cd-stat-label">Hours / Week</div>
-        </div>
-        <div className="cd-stat-card">
-          <span className="material-symbols-rounded">calendar_month</span>
-          <div className="cd-stat-val">{candidate.hours_per_month ?? '—'}</div>
-          <div className="cd-stat-label">Hours / Month</div>
-        </div>
-      </div>
-
-      <div className="cd-avail-row">
-        <div className="cd-avail-item">
-          <label>Available From</label>
-          <span>{fmt(candidate.available_from)}</span>
-        </div>
-        <div className="cd-avail-divider">→</div>
-        <div className="cd-avail-item">
-          <label>Available To</label>
-          <span>{fmt(candidate.available_to)}</span>
-        </div>
-        <div className="cd-avail-item">
-          <label>Daily Window</label>
-          <span>{fmtTime(candidate.time_from)} – {fmtTime(candidate.time_to)}</span>
-        </div>
-      </div>
     </div>
   )
 }
@@ -246,8 +187,6 @@ function ProfileView({ candidate, qualifications, onSave }) {
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
   const [form, setForm] = useState({
-    phone: candidate.phone || '',
-    company_email: candidate.company_email || '',
     available_from: candidate.available_from?.slice(0, 10) || '',
     available_to: candidate.available_to?.slice(0, 10) || '',
     time_from: candidate.time_from || '',
@@ -309,23 +248,13 @@ function ProfileView({ candidate, qualifications, onSave }) {
 
       {/* Personal Info (read-only) */}
       <div className="cd-profile-section">
-        <h3>Personal Information <span className="cd-locked-badge">🔒 Managed by HR</span></h3>
+        <h3>Personal Information <span className="cd-locked-badge"></span></h3>
         <div className="cd-grid-2">
           <div className="cd-info-row"><label>First Name</label><span>{candidate.first_name}</span></div>
           <div className="cd-info-row"><label>Last Name</label><span>{candidate.last_name}</span></div>
           <div className="cd-info-row"><label>Personal Email</label><span>{candidate.personal_email}</span></div>
-          <div className="cd-info-row">
-            <label>Phone</label>
-            {editing
-              ? <input className="cd-field-input" value={form.phone} onChange={e => set('phone', e.target.value)} />
-              : <span>{candidate.phone || '—'}</span>}
-          </div>
-          <div className="cd-info-row">
-            <label>Company Email</label>
-            {editing
-              ? <input className="cd-field-input" type="email" value={form.company_email} onChange={e => set('company_email', e.target.value)} placeholder="Optional" />
-              : <span>{candidate.company_email || '—'}</span>}
-          </div>
+          <div className="cd-info-row"><label>Phone</label><span>{candidate.phone || '—'}</span></div>
+          <div className="cd-info-row"><label>Company Email</label><span>{candidate.company_email || '—'}</span></div>
           <div className="cd-info-row"><label>Applied For</label><span>{candidate.applied_for || '—'}</span></div>
         </div>
       </div>

@@ -2,12 +2,19 @@ import express from 'express'
 import cors from 'cors'
 import mysql from 'mysql2/promise'
 import dotenv from 'dotenv'
+import crypto from 'crypto'
 
 dotenv.config()
 
 const app = express()
 app.use(cors())
 app.use(express.json())
+
+// Helper to hash candidate password securely
+function hashPassword(pw) {
+  if (!pw) return null
+  return crypto.scryptSync(pw, 'simtechon_salt_key_2026', 64).toString('hex')
+}
 
 // Root status endpoint
 app.get('/', (req, res) => {
@@ -96,13 +103,15 @@ app.post('/api/candidates', async (req, res) => {
       appliedFor,
     } = req.body
 
-    // Generate next candidate id: C100001, C100002...
+    // Generate next candidate id starting at C100001: C100001, C100002...
     const [[{ maxNum }]] = await pool.execute(
       `SELECT MAX(CAST(SUBSTRING(id, 2) AS UNSIGNED)) as maxNum FROM candidates WHERE id LIKE 'C%'`
     )
-    const nextNum = (maxNum && maxNum >= 1001) ? maxNum + 1 : 1001
+    const nextNum = (maxNum && maxNum >= 100001) ? maxNum + 1 : 100001
     const candidateId = `C${nextNum}`
 
+    // Hash password before saving to DB
+    const hashedPassword = password ? hashPassword(password) : null
 
     await pool.execute(
       `INSERT INTO candidates
@@ -114,7 +123,7 @@ app.post('/api/candidates', async (req, res) => {
        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
         candidateId,
-        firstName, lastName, personalEmail, phone, username, companyEmail, password || null,
+        firstName, lastName, personalEmail, phone, username, companyEmail, hashedPassword,
         availableFrom || null, availableTo || null,
         timeFrom || null, timeTo || null,
         hoursPerDay || null, hoursPerWeek || null, hoursPerMonth || null,
@@ -175,7 +184,10 @@ app.post('/api/candidate-login', async (req, res) => {
     if (!rows.length) return res.status(401).json({ error: 'Invalid email or password' })
 
     const candidate = rows[0]
-    if (!candidate.password || candidate.password !== password) {
+    const hashedPassword = hashPassword(password)
+
+    // Verify hashed password (or plain text if legacy record)
+    if (!candidate.password || (candidate.password !== hashedPassword && candidate.password !== password)) {
       return res.status(401).json({ error: 'Invalid email or password' })
     }
 
@@ -192,7 +204,6 @@ app.post('/api/candidate-login', async (req, res) => {
 app.put('/api/candidates/:id', async (req, res) => {
   try {
     const {
-      phone, company_email,
       available_from, available_to, time_from, time_to,
       hours_per_day, hours_per_week, hours_per_month,
       work_skills, qualifications,
@@ -201,7 +212,6 @@ app.put('/api/candidates/:id', async (req, res) => {
     } = req.body
     await pool.execute(
       `UPDATE candidates SET
-        phone=?, company_email=?,
         available_from=?, available_to=?, time_from=?, time_to=?,
         hours_per_day=?, hours_per_week=?, hours_per_month=?,
         work_skills=?, qualifications=?,
@@ -209,7 +219,6 @@ app.put('/api/candidates/:id', async (req, res) => {
         expected_hourly_rate=?, expected_weekly_rate=?
        WHERE id=?`,
       [
-        phone, company_email || null,
         available_from || null, available_to || null,
         time_from || null, time_to || null,
         hours_per_day || null, hours_per_week || null, hours_per_month || null,
