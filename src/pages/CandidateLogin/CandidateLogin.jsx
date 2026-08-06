@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import { API_BASE } from '../../config.js'
 import './CandidateLogin.css'
 
@@ -42,6 +43,10 @@ function CandidateLogin() {
 
   return (
     <div className="cl-root">
+      <Link to="/" className="cl-back-top-right">
+        <ArrowLeft size={16} />
+      </Link>
+
       {/* Left panel — branding */}
       <div className="cl-left">
         <div className="cl-left-inner">

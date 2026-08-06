@@ -1,11 +1,41 @@
 /* ─── CANDIDATE LOGIN ─── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 .cl-root {
   display: flex;
   min-height: 100vh;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+.cl-back-top-right {
+  position: absolute;
+  top: 1.75rem;
+  left: 2rem;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 0.55rem 1.2rem;
+  border-radius: 50px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cl-back-top-right:hover {
+  background: #ffffff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.15);
+  transform: translateY(-2px);
 }
 
 /* ─── LEFT PANEL ─── */
@@ -71,7 +101,7 @@
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(8px);
   color: #bfdbfe;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 0.35rem 1rem;
   border-radius: 50px;
   font-size: 0.75rem;
@@ -82,9 +112,9 @@
 }
 
 .cl-left-content h1 {
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(2.5rem, 5vw, 3.5rem);
-  font-weight: 900;
+  font-weight: 800;
   color: #ffffff;
   line-height: 1.05;
   letter-spacing: -0.035em;
@@ -95,7 +125,7 @@
   color: #93c5fd;
 }
 
-.cl-left-content > p {
+.cl-left-content>p {
   font-size: 1.05rem;
   color: rgba(255, 255, 255, 0.75);
   line-height: 1.7;
@@ -159,17 +189,20 @@
 }
 
 .cl-form-header h2 {
-  font-family: 'Manrope', sans-serif;
-  font-size: 1.9rem;
-  font-weight: 900;
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
   color: #0f172a;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   margin-bottom: 0.4rem;
 }
 
 .cl-form-header p {
-  font-size: 0.92rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.95rem;
   color: #64748b;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 /* ─── ERROR ─── */
@@ -177,7 +210,7 @@
   background: #fef2f2;
   border: 1px solid #fecaca;
   color: #dc2626;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 0.75rem 1rem;
   font-size: 0.85rem;
   font-weight: 500;
@@ -186,8 +219,15 @@
 }
 
 @keyframes clFadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ─── FORM GROUPS ─── */
@@ -195,28 +235,35 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .cl-form-group label {
-  font-size: 0.78rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #0f172a;
+  color: #1e293b;
   padding-left: 0.25rem;
 }
 
 .cl-form-group input {
   padding: 0.95rem 1.25rem;
   border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.98rem;
+  border-radius: 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
   color: #0f172a;
   background: #ffffff;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.cl-form-group input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
 }
 
 .cl-form-group input:focus {
@@ -248,19 +295,22 @@
   transition: color 0.2s;
 }
 
-.cl-toggle-eye:hover { color: #2563eb; }
+.cl-toggle-eye:hover {
+  color: #2563eb;
+}
 
 /* ─── SUBMIT BUTTON ─── */
 .cl-submit-btn {
   width: 100%;
-  padding: 1rem;
+  padding: 1rem 1.5rem;
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: #ffffff;
   border: none;
-  border-radius: 12px;
-  font-family: 'Inter', sans-serif;
+  border-radius: 50px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -268,8 +318,8 @@
   gap: 0.5rem;
   margin-top: 0.5rem;
   margin-bottom: 1.75rem;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
 }
 
 .cl-submit-btn:hover:not(:disabled) {
@@ -295,13 +345,17 @@
 .cl-spinner {
   width: 20px;
   height: 20px;
-  border: 2.5px solid rgba(255,255,255,0.3);
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
   border-top-color: #ffffff;
   border-radius: 50%;
   animation: clSpin 0.7s linear infinite;
 }
 
-@keyframes clSpin { to { transform: rotate(360deg); } }
+@keyframes clSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* ─── FORM FOOTER ─── */
 .cl-form-footer {
@@ -322,7 +376,9 @@
   text-decoration: none;
 }
 
-.cl-form-footer a:hover { text-decoration: underline; }
+.cl-form-footer a:hover {
+  text-decoration: underline;
+}
 
 .cl-admin-link {
   font-size: 0.8rem !important;
@@ -336,8 +392,20 @@
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 900px) {
-  .cl-root { flex-direction: column; }
-  .cl-left { padding: 3rem 2rem; }
-  .cl-left-content h1 { font-size: 2.2rem; }
-  .cl-right { width: 100%; padding: 2.5rem 1.5rem; }
+  .cl-root {
+    flex-direction: column;
+  }
+
+  .cl-left {
+    padding: 3rem 2rem;
+  }
+
+  .cl-left-content h1 {
+    font-size: 2.2rem;
+  }
+
+  .cl-right {
+    width: 100%;
+    padding: 2.5rem 1.5rem;
+  }
 }
