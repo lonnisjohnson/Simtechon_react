@@ -38,6 +38,7 @@ async function initDB() {
       applied_for           VARCHAR(255)    NOT NULL,
       username              VARCHAR(150),
       company_email         VARCHAR(255),
+      password              VARCHAR(255),
       available_from        DATE,
       available_to          DATE,
       time_from             TIME,
@@ -86,7 +87,7 @@ app.post('/api/candidates', async (req, res) => {
   try {
     const {
       firstName, lastName, personalEmail, phone,
-      username, companyEmail,
+      username, companyEmail, password,
       availableFrom, availableTo, timeFrom, timeTo,
       hoursPerDay, hoursPerWeek, hoursPerMonth,
       workSkills, qualifications,
@@ -105,15 +106,15 @@ app.post('/api/candidates', async (req, res) => {
 
     await pool.execute(
       `INSERT INTO candidates
-        (id, first_name, last_name, personal_email, phone, username, company_email,
+        (id, first_name, last_name, personal_email, phone, username, company_email, password,
          available_from, available_to, time_from, time_to,
          hours_per_day, hours_per_week, hours_per_month,
          work_skills, qualifications, completed_courses, valid_certificates,
          expected_hourly_rate, expected_weekly_rate, applied_for)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
         candidateId,
-        firstName, lastName, personalEmail, phone, username, companyEmail,
+        firstName, lastName, personalEmail, phone, username, companyEmail, password || null,
         availableFrom || null, availableTo || null,
         timeFrom || null, timeTo || null,
         hoursPerDay || null, hoursPerWeek || null, hoursPerMonth || null,
@@ -144,6 +145,88 @@ app.get('/api/candidates', async (req, res) => {
     res.status(500).json([])
   }
 })
+
+// ── GET /api/candidates/:id ── Fetch single candidate ─────────────────────
+app.get('/api/candidates/:id', async (req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM candidates WHERE id = ?',
+      [req.params.id]
+    )
+    if (!rows.length) return res.status(404).json({ error: 'Not found' })
+    res.json(rows[0])
+  } catch (err) {
+    console.error('GET /api/candidates/:id error:', err)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ── POST /api/candidate-login ── Candidate login with email + password ─────
+app.post('/api/candidate-login', async (req, res) => {
+  try {
+    const { email, password } = req.body
+    if (!email || !password) return res.status(400).json({ error: 'Email and password required' })
+
+    const [rows] = await pool.execute(
+      'SELECT * FROM candidates WHERE personal_email = ?',
+      [email.toLowerCase().trim()]
+    )
+
+    if (!rows.length) return res.status(401).json({ error: 'Invalid email or password' })
+
+    const candidate = rows[0]
+    if (!candidate.password || candidate.password !== password) {
+      return res.status(401).json({ error: 'Invalid email or password' })
+    }
+
+    // Return everything except the password
+    const { password: _pw, ...safe } = candidate
+    res.json({ success: true, candidate: safe })
+  } catch (err) {
+    console.error('POST /api/candidate-login error:', err)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ── PUT /api/candidates/:id ── Candidate self-update ──────────────────────
+app.put('/api/candidates/:id', async (req, res) => {
+  try {
+    const {
+      phone, company_email,
+      available_from, available_to, time_from, time_to,
+      hours_per_day, hours_per_week, hours_per_month,
+      work_skills, qualifications,
+      completed_courses, valid_certificates,
+      expected_hourly_rate, expected_weekly_rate,
+    } = req.body
+    await pool.execute(
+      `UPDATE candidates SET
+        phone=?, company_email=?,
+        available_from=?, available_to=?, time_from=?, time_to=?,
+        hours_per_day=?, hours_per_week=?, hours_per_month=?,
+        work_skills=?, qualifications=?,
+        completed_courses=?, valid_certificates=?,
+        expected_hourly_rate=?, expected_weekly_rate=?
+       WHERE id=?`,
+      [
+        phone, company_email || null,
+        available_from || null, available_to || null,
+        time_from || null, time_to || null,
+        hours_per_day || null, hours_per_week || null, hours_per_month || null,
+        work_skills,
+        JSON.stringify(qualifications || []),
+        completed_courses, valid_certificates,
+        expected_hourly_rate || null, expected_weekly_rate || null,
+        req.params.id,
+      ]
+    )
+    res.json({ success: true })
+  } catch (err) {
+    console.error('PUT /api/candidates/:id error:', err)
+    res.status(500).json({ success: false, error: err.message })
+  }
+})
+
 
 // ── PATCH /api/candidates/:id/status ── Update candidate status ───────────
 app.patch('/api/candidates/:id/status', async (req, res) => {

@@ -36,6 +36,7 @@ function Footer() {
               <li><Link to="/services">Services</Link></li>
               <li><Link to="/jobs">Job Portal</Link></li>
               <li><Link to="/contact">Contact Us</Link></li>
+              <li><Link to="/candidate-login">Candidate Portal</Link></li>
               <li><Link to="/login">Employee Portal</Link></li>
             </ul>
           </div>

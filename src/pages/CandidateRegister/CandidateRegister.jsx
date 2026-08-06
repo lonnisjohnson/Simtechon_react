@@ -190,6 +190,7 @@ export default function CandidateRegister() {
           expectedHourlyRate: form.expectedHourlyRate,
           expectedWeeklyRate: form.expectedWeeklyRate,
           appliedFor: form.appliedFor,
+          password: form.password,
         }),
       })
 

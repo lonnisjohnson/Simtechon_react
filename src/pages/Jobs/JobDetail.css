@@ -265,7 +265,7 @@
 .jd-apply-icon-wrap {
     width: 68px;
     height: 68px;
-    background: var(--blue-50);
+    background: white;
     border-radius: 20px;
     display: flex;
     align-items: center;
