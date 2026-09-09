@@ -37,34 +37,32 @@ async function initDB() {
   const conn = await pool.getConnection()
   await conn.execute(`
     CREATE TABLE IF NOT EXISTS candidates (
-      id                    VARCHAR(20)   PRIMARY KEY,
-      first_name            VARCHAR(100)    NOT NULL,
-      last_name             VARCHAR(100)    NOT NULL,
-      personal_email        VARCHAR(255)    NOT NULL,
-      phone                 VARCHAR(50)     NOT NULL,
-      applied_for           VARCHAR(255)    NOT NULL,
+      id                    VARCHAR(20)    PRIMARY KEY,
+      first_name            VARCHAR(100)   NOT NULL,
+      last_name             VARCHAR(100)   NOT NULL,
+      personal_email        VARCHAR(255)   NOT NULL,
+      phone                 VARCHAR(50)    NOT NULL,
+      applied_for           VARCHAR(255)   NOT NULL,
       username              VARCHAR(150),
-      company_email         VARCHAR(255),
       password              VARCHAR(255),
       available_from        DATE,
       available_to          DATE,
       time_from             TIME,
       time_to               TIME,
-      hours_per_day         INT,
-      hours_per_week        INT,
-      hours_per_month       INT,
+      available_days        VARCHAR(255),
       work_skills           TEXT,
       qualifications        JSON,
       completed_courses     TEXT,
       valid_certificates    TEXT,
+      experiences           JSON,
+      experience_level      VARCHAR(50),
       expected_hourly_rate  DECIMAL(10,2),
-      expected_weekly_rate  DECIMAL(10,2),
-      status                VARCHAR(50)   DEFAULT 'Pending',
-      submitted_at          DATETIME      DEFAULT CURRENT_TIMESTAMP
+      status                VARCHAR(50)    DEFAULT 'Pending',
+      submitted_at          DATETIME       DEFAULT CURRENT_TIMESTAMP
     )
   `)
 
-  // Create Jobs table (job_id is the primary key)
+  // Create Jobs table
   await conn.execute(`
     CREATE TABLE IF NOT EXISTS jobs (
       job_id                VARCHAR(10)  PRIMARY KEY,
@@ -74,7 +72,6 @@ async function initDB() {
       work_type             VARCHAR(50),
       employment_type       VARCHAR(50),
       experience            VARCHAR(100),
-      payment_range         VARCHAR(100),
       about_role            TEXT,
       key_responsibilities  TEXT,
       looking_for           TEXT,
@@ -94,16 +91,15 @@ app.post('/api/candidates', async (req, res) => {
   try {
     const {
       firstName, lastName, personalEmail, phone,
-      username, companyEmail, password,
-      availableFrom, availableTo, timeFrom, timeTo,
-      hoursPerDay, hoursPerWeek, hoursPerMonth,
+      username, password,
+      availableFrom, availableTo, timeFrom, timeTo, availableDays,
       workSkills, qualifications,
-      completedCourses, validCertificates,
-      expectedHourlyRate, expectedWeeklyRate,
+      completedCourses, validCertificates, experiences,
+      totalExperience, expectedHourlyRate,
       appliedFor,
     } = req.body
 
-    // Generate next candidate id starting at C100001: C100001, C100002...
+    // Generate next candidate id starting at C100001
     const [[{ maxNum }]] = await pool.execute(
       `SELECT MAX(CAST(SUBSTRING(id, 2) AS UNSIGNED)) as maxNum FROM candidates WHERE id LIKE 'C%'`
     )
@@ -115,23 +111,25 @@ app.post('/api/candidates', async (req, res) => {
 
     await pool.execute(
       `INSERT INTO candidates
-        (id, first_name, last_name, personal_email, phone, username, company_email, password,
-         available_from, available_to, time_from, time_to,
-         hours_per_day, hours_per_week, hours_per_month,
+        (id, first_name, last_name, personal_email, phone, applied_for,
+         username, password,
+         available_from, available_to, time_from, time_to, available_days,
          work_skills, qualifications, completed_courses, valid_certificates,
-         expected_hourly_rate, expected_weekly_rate, applied_for)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+         experiences, experience_level, expected_hourly_rate)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
         candidateId,
-        firstName, lastName, personalEmail, phone, username, companyEmail, hashedPassword,
+        firstName, lastName, personalEmail, phone, appliedFor || null,
+        username, hashedPassword,
         availableFrom || null, availableTo || null,
         timeFrom || null, timeTo || null,
-        hoursPerDay || null, hoursPerWeek || null, hoursPerMonth || null,
+        availableDays || null,
         workSkills,
         JSON.stringify(qualifications || []),
         completedCourses, validCertificates,
-        expectedHourlyRate || null, expectedWeeklyRate || null,
-        appliedFor || null,
+        JSON.stringify(experiences || []),
+        totalExperience || null,
+        expectedHourlyRate || null,
       ]
     )
 
@@ -204,28 +202,28 @@ app.post('/api/candidate-login', async (req, res) => {
 app.put('/api/candidates/:id', async (req, res) => {
   try {
     const {
-      available_from, available_to, time_from, time_to,
-      hours_per_day, hours_per_week, hours_per_month,
+      available_from, available_to, time_from, time_to, available_days,
       work_skills, qualifications,
-      completed_courses, valid_certificates,
-      expected_hourly_rate, expected_weekly_rate,
+      completed_courses, valid_certificates, experiences,
+      experience_level, expected_hourly_rate,
     } = req.body
     await pool.execute(
       `UPDATE candidates SET
-        available_from=?, available_to=?, time_from=?, time_to=?,
-        hours_per_day=?, hours_per_week=?, hours_per_month=?,
+        available_from=?, available_to=?, time_from=?, time_to=?, available_days=?,
         work_skills=?, qualifications=?,
-        completed_courses=?, valid_certificates=?,
-        expected_hourly_rate=?, expected_weekly_rate=?
+        completed_courses=?, valid_certificates=?, experiences=?,
+        experience_level=?, expected_hourly_rate=?
        WHERE id=?`,
       [
         available_from || null, available_to || null,
         time_from || null, time_to || null,
-        hours_per_day || null, hours_per_week || null, hours_per_month || null,
+        available_days || null,
         work_skills,
         JSON.stringify(qualifications || []),
         completed_courses, valid_certificates,
-        expected_hourly_rate || null, expected_weekly_rate || null,
+        JSON.stringify(experiences || []),
+        experience_level || null,
+        expected_hourly_rate || null,
         req.params.id,
       ]
     )
@@ -268,7 +266,7 @@ app.post('/api/jobs', async (req, res) => {
   try {
     const {
       title, department, location, work_type, employment_type,
-      experience, payment_range, about_role, key_responsibilities,
+      experience, about_role, key_responsibilities,
       looking_for, nice_to_have, what_we_offer
     } = req.body
 
@@ -282,13 +280,13 @@ app.post('/api/jobs', async (req, res) => {
     await pool.execute(
       `INSERT INTO jobs 
         (job_id, title, department, location, work_type, employment_type,
-         experience, payment_range, about_role, key_responsibilities,
+         experience, about_role, key_responsibilities,
          looking_for, nice_to_have, what_we_offer) 
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
         job_id,
         title, department, location, work_type || null, employment_type || null,
-        experience || null, payment_range || null, about_role || null, key_responsibilities || null,
+        experience || null, about_role || null, key_responsibilities || null,
         looking_for || null, nice_to_have || null, what_we_offer || null
       ]
     )
@@ -304,18 +302,18 @@ app.put('/api/jobs/:job_id', async (req, res) => {
   try {
     const {
       title, department, location, work_type, employment_type,
-      experience, payment_range, about_role, key_responsibilities,
+      experience, about_role, key_responsibilities,
       looking_for, nice_to_have, what_we_offer, status
     } = req.body
     await pool.execute(
       `UPDATE jobs SET
         title=?, department=?, location=?, work_type=?, employment_type=?,
-        experience=?, payment_range=?, about_role=?, key_responsibilities=?,
+        experience=?, about_role=?, key_responsibilities=?,
         looking_for=?, nice_to_have=?, what_we_offer=?, status=?
        WHERE job_id=?`,
       [
         title, department, location, work_type, employment_type,
-        experience, payment_range, about_role, key_responsibilities,
+        experience, about_role, key_responsibilities,
         looking_for, nice_to_have, what_we_offer, status,
         req.params.job_id
       ]

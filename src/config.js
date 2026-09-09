@@ -3,4 +3,5 @@
 // export const API_BASE = import.meta.env.DEV
 //   ? 'http://localhost:3001'
 //   : 'https://simtechon-react.onrender.com'
-export const API_BASE = 'https://simtechon-react.onrender.com'
+export const API_BASE = 'http://localhost:3001'
+

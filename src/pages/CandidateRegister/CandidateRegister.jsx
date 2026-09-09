@@ -50,7 +50,8 @@ export default function CandidateRegister() {
   const [submitError, setSubmitError] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [qualInput, setQualInput] = useState({ degree: '', institution: '', year: '' })
+  const [qualInput, setQualInput] = useState({ degree: '', institution: '', startYear: '', endYear: '' })
+  const [expInput, setExpInput] = useState({ company: '', jobTitle: '', startDate: '', endDate: '', currentlyWork: false, responsibilities: '' })
 
   const [jobs, setJobs] = useState([])
 
@@ -76,16 +77,15 @@ export default function CandidateRegister() {
     availableTo: '',
     timeFrom: '',
     timeTo: '',
-    hoursPerDay: '',
-    hoursPerWeek: '',
-    hoursPerMonth: '',
+    availableDays: [],
     // Step 3 – Skills & Qualifications
     workSkills: '',
     qualifications: [],
     completedCourses: '',
     validCertificates: '',
+    experiences: [],
+    totalExperience: '',
     expectedHourlyRate: '',
-    expectedWeeklyRate: '',
     // Step 4 – Account Setup
     password: '',
     confirmPassword: '',
@@ -106,16 +106,50 @@ export default function CandidateRegister() {
     if (!degree.trim()) return
     setForm((prev) => ({
       ...prev,
-      qualifications: [...prev.qualifications, { degree: degree.trim(), institution: institution.trim(), year: year.trim() }],
+      qualifications: [...prev.qualifications, { degree: degree.trim(), institution: institution.trim(), startYear: qualInput.startYear.trim(), endYear: qualInput.endYear.trim() }],
     }))
-    setQualInput({ degree: '', institution: '', year: '' })
+    setQualInput({ degree: '', institution: '', startYear: '', endYear: '' })
     setErrors((prev) => ({ ...prev, qualifications: undefined }))
+  }
+
+  const toggleDay = (day) => {
+    setForm(prev => {
+      const days = prev.availableDays || []
+      if (days.includes(day)) {
+        return { ...prev, availableDays: days.filter(d => d !== day) }
+      } else {
+        return { ...prev, availableDays: [...days, day] }
+      }
+    })
   }
 
   const removeQual = (idx) =>
     setForm((prev) => ({
       ...prev,
       qualifications: prev.qualifications.filter((_, i) => i !== idx),
+    }))
+
+  // Auto-format MM/YYYY for experience dates
+  const formatMonthYear = (value) => {
+    const digits = value.replace(/\D/g, '').slice(0, 6)
+    if (digits.length <= 2) return digits
+    return digits.slice(0, 2) + '/' + digits.slice(2)
+  }
+
+  const addExp = () => {
+    const { company, jobTitle, startDate } = expInput
+    if (!company.trim() || !jobTitle.trim() || !startDate.trim()) return
+    setForm((prev) => ({
+      ...prev,
+      experiences: [...prev.experiences, { ...expInput, company: company.trim(), jobTitle: jobTitle.trim() }],
+    }))
+    setExpInput({ company: '', jobTitle: '', startDate: '', endDate: '', currentlyWork: false, responsibilities: '' })
+  }
+
+  const removeExp = (idx) =>
+    setForm((prev) => ({
+      ...prev,
+      experiences: prev.experiences.filter((_, i) => i !== idx),
     }))
 
   const validate = () => {
@@ -139,9 +173,9 @@ export default function CandidateRegister() {
       if (!form.timeFrom) errs.timeFrom = 'Required'
       if (!form.timeTo) errs.timeTo = 'Required'
 
-      if (!form.hoursPerDay) errs.hoursPerDay = 'Required'
-      if (!form.hoursPerWeek) errs.hoursPerWeek = 'Required'
-      if (!form.hoursPerMonth) errs.hoursPerMonth = 'Required'
+      if (!form.availableDays || form.availableDays.length === 0) {
+        errs.availableDays = 'Select at least one day'
+      }
     }
     if (step === 2) {
       if (!form.workSkills.trim()) errs.workSkills = 'Required'
@@ -179,20 +213,18 @@ export default function CandidateRegister() {
           personalEmail: form.personalEmail,
           phone: form.phone,
           username: toUsername(form.firstName, form.lastName),
-          companyEmail: toCompanyEmail(form.firstName, form.lastName),
           availableFrom: form.availableFrom,
           availableTo: form.availableTo,
           timeFrom: form.timeFrom,
           timeTo: form.timeTo,
-          hoursPerDay: form.hoursPerDay,
-          hoursPerWeek: form.hoursPerWeek,
-          hoursPerMonth: form.hoursPerMonth,
+          availableDays: form.availableDays.join(', '),
           workSkills: form.workSkills,
           qualifications: form.qualifications,
           completedCourses: form.completedCourses,
           validCertificates: form.validCertificates,
+          experiences: form.experiences,
+          totalExperience: form.totalExperience,
           expectedHourlyRate: form.expectedHourlyRate,
-          expectedWeeklyRate: form.expectedWeeklyRate,
           appliedFor: form.appliedFor,
           password: form.password,
         }),
@@ -222,13 +254,8 @@ export default function CandidateRegister() {
           <h1>Registration Submitted!</h1>
           <p>
             Thank you, <strong>{form.firstName} {form.lastName}</strong>. Your application has been
-            received. HR will review your details and contact you at{' '}
-            <strong>{form.personalEmail}</strong> within 2–3 business days.
+            received. We will review your details and contact you.
           </p>
-          <div className="cr-success-detail">
-            <div><span>Username</span><strong>{username}</strong></div>
-            <div><span>Company Email</span><strong>{companyEmail}</strong></div>
-          </div>
         </div>
       </div>
     )
@@ -291,7 +318,6 @@ export default function CandidateRegister() {
                       />
                     </div>
                     {errors.firstName && <span className="cr-error">{errors.firstName}</span>}
-                    <small>1st letter capital</small>
                   </div>
                   <div className="cr-field">
                     <label>Last Name <span>*</span></label>
@@ -307,7 +333,6 @@ export default function CandidateRegister() {
                       />
                     </div>
                     {errors.lastName && <span className="cr-error">{errors.lastName}</span>}
-                    <small>1st letter capital</small>
                   </div>
                 </div>
 
@@ -325,7 +350,6 @@ export default function CandidateRegister() {
                     />
                   </div>
                   {errors.personalEmail && <span className="cr-error">{errors.personalEmail}</span>}
-                  <small>Must contain @ symbol</small>
                 </div>
 
                 <div className="cr-field">
@@ -342,7 +366,6 @@ export default function CandidateRegister() {
                     />
                   </div>
                   {errors.phone && <span className="cr-error">{errors.phone}</span>}
-                  <small>Include country code (e.g. +353 for Ireland)</small>
                 </div>
                 <div className="cr-field">
                   <label>Applying For (Job Role) <span>*</span></label>
@@ -462,58 +485,23 @@ export default function CandidateRegister() {
                   </div>
                 </div>
 
-                <div className="cr-row-3">
-                  <div className="cr-field">
-                    <label>Hours / Day <span>*</span></label>
-                    <div className="cr-input-wrap">
-                      <Clock size={16} className="cr-icon" />
-                      <input
-                        id="hoursPerDay"
-                        type="number"
-                        min="1" max="24"
-                        placeholder="e.g. 8"
-                        value={form.hoursPerDay}
-                        onChange={set('hoursPerDay')}
-                        className={errors.hoursPerDay ? 'err' : ''}
-                      />
-                    </div>
-                    {errors.hoursPerDay && <span className="cr-error">{errors.hoursPerDay}</span>}
-                    <small>How many hours per day</small>
+                <div className="cr-field">
+                  <label>Available Days <span>*</span></label>
+                  <div className="cr-days-wrap">
+                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                      <label key={day} className={`cr-day-pill ${form.availableDays?.includes(day) ? 'active' : ''}`}>
+                        <input
+                          type="checkbox"
+                          checked={form.availableDays?.includes(day) || false}
+                          onChange={() => toggleDay(day)}
+                          style={{ display: 'none' }}
+                        />
+                        {day}
+                      </label>
+                    ))}
                   </div>
-                  <div className="cr-field">
-                    <label>Hours / Week <span>*</span></label>
-                    <div className="cr-input-wrap">
-                      <Clock size={16} className="cr-icon" />
-                      <input
-                        id="hoursPerWeek"
-                        type="number"
-                        min="1" max="168"
-                        placeholder="e.g. 40"
-                        value={form.hoursPerWeek}
-                        onChange={set('hoursPerWeek')}
-                        className={errors.hoursPerWeek ? 'err' : ''}
-                      />
-                    </div>
-                    {errors.hoursPerWeek && <span className="cr-error">{errors.hoursPerWeek}</span>}
-                    <small>How many hours per week</small>
-                  </div>
-                  <div className="cr-field">
-                    <label>Hours / Month <span>*</span></label>
-                    <div className="cr-input-wrap">
-                      <Clock size={16} className="cr-icon" />
-                      <input
-                        id="hoursPerMonth"
-                        type="number"
-                        min="1" max="744"
-                        placeholder="e.g. 160"
-                        value={form.hoursPerMonth}
-                        onChange={set('hoursPerMonth')}
-                        className={errors.hoursPerMonth ? 'err' : ''}
-                      />
-                    </div>
-                    {errors.hoursPerMonth && <span className="cr-error">{errors.hoursPerMonth}</span>}
-                    <small>How many hours per month</small>
-                  </div>
+                  {errors.availableDays && <span className="cr-error">{errors.availableDays}</span>}
+                  <small>Select the days you are available to work</small>
                 </div>
 
                 {/* Expecting Rate */}
@@ -532,24 +520,8 @@ export default function CandidateRegister() {
                         onChange={set('expectedHourlyRate')}
                       />
                     </div>
-                    <small>Your expected hourly rate in Euros</small>
                   </div>
-                  <div className="cr-field">
-                    <label>Expecting Rate – Weekly (€)</label>
-                    <div className="cr-input-wrap">
-                      <Euro size={16} className="cr-icon" />
-                      <input
-                        id="expectedWeeklyRate"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="e.g. 1000.00"
-                        value={form.expectedWeeklyRate}
-                        onChange={set('expectedWeeklyRate')}
-                      />
-                    </div>
-                    <small>Your expected weekly rate in Euros</small>
-                  </div>
+                  <div className="cr-field" style={{ visibility: 'hidden' }}></div>
                 </div>
               </div>
             )}
@@ -561,7 +533,6 @@ export default function CandidateRegister() {
                   <div className="cr-section-icon"><Briefcase size={22} /></div>
                   <div>
                     <h2>Skills &amp; Qualifications</h2>
-                    <p>Tell us what you can do and what you have achieved.</p>
                   </div>
                 </div>
 
@@ -576,7 +547,174 @@ export default function CandidateRegister() {
                     className={errors.workSkills ? 'err' : ''}
                   />
                   {errors.workSkills && <span className="cr-error">{errors.workSkills}</span>}
-                  <small>What work can you do confidently?</small>
+                </div>
+
+                <div className="cr-field">
+                  <label>Experience</label>
+                  <div className="cr-input-wrap">
+                    <Briefcase size={16} className="cr-icon" />
+                    <select
+                      id="totalExperience"
+                      value={form.totalExperience}
+                      onChange={set('totalExperience')}
+                      style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: form.totalExperience ? '#0f172a' : '#94a3b8', fontSize: '0.95rem', outline: 'none', appearance: 'auto' }}
+                    >
+                      <option value="">Select range</option>
+                      <option value="Fresher / less than 1 year">Fresher / less than 1 year</option>
+                      <option value="1 – 3 years">1 – 3 years</option>
+                      <option value="3 – 5 years">3 – 5 years</option>
+                      <option value="5 – 8 years">5 – 8 years</option>
+                      <option value="8 – 12 years">8 – 12 years</option>
+                      <option value="12+ years">12+ years</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="cr-field">
+
+                  {form.totalExperience && form.totalExperience !== 'Fresher / less than 1 year' && (<>
+                  {/* ── Experience entry builder ── */}
+                  {form.experiences.map((exp, idx) => (
+                    <div key={idx} className="cr-exp-card">
+                      <div className="cr-exp-card-header">
+                        <strong>EXPERIENCE {idx + 1}</strong>
+                        <button type="button" className="cr-exp-remove-link" onClick={() => removeExp(idx)}>Remove</button>
+                      </div>
+                      <div className="cr-row-2">
+                        <div className="cr-field">
+                          <label>Company name</label>
+                          <div className="cr-input-wrap">
+                            <Briefcase size={16} className="cr-icon" />
+                            <input type="text" value={exp.company} readOnly />
+                          </div>
+                        </div>
+                        <div className="cr-field">
+                          <label>Job title</label>
+                          <div className="cr-input-wrap">
+                            <Award size={16} className="cr-icon" />
+                            <input type="text" value={exp.jobTitle} readOnly />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="cr-row-2">
+                        <div className="cr-field">
+                          <label>Start date</label>
+                          <div className="cr-input-wrap">
+                            <Calendar size={16} className="cr-icon" />
+                            <input type="text" value={exp.startDate} readOnly />
+                          </div>
+                        </div>
+                        <div className="cr-field">
+                          <label>End date</label>
+                          <div className="cr-input-wrap">
+                            <Calendar size={16} className="cr-icon" />
+                            <input type="text" value={exp.currentlyWork ? 'Present' : exp.endDate} readOnly />
+                          </div>
+                        </div>
+                      </div>
+                      {exp.responsibilities && (
+                        <div className="cr-field">
+                          <label>Key responsibilities / achievements</label>
+                          <div className="cr-exp-resp-preview">{exp.responsibilities}</div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* ── New experience input form ── */}
+                  <div className="cr-exp-builder">
+                    <div className="cr-exp-builder-title">EXPERIENCE {form.experiences.length + 1}</div>
+                    <div className="cr-row-2">
+                      <div className="cr-field">
+                        <label>Company name</label>
+                        <div className="cr-input-wrap">
+                          <Briefcase size={16} className="cr-icon" />
+                          <input
+                            id="exp-company"
+                            type="text"
+                            placeholder="e.g. Acme Corp"
+                            value={expInput.company}
+                            onChange={(e) => setExpInput(p => ({ ...p, company: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="cr-field">
+                        <label>Job title</label>
+                        <div className="cr-input-wrap">
+                          <Award size={16} className="cr-icon" />
+                          <input
+                            id="exp-jobTitle"
+                            type="text"
+                            placeholder="e.g. Software Engineer"
+                            value={expInput.jobTitle}
+                            onChange={(e) => setExpInput(p => ({ ...p, jobTitle: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="cr-row-2">
+                      <div className="cr-field">
+                        <label>Start date</label>
+                        <div className="cr-input-wrap">
+                          <Calendar size={16} className="cr-icon" />
+                          <input
+                            id="exp-startDate"
+                            type="text"
+                            placeholder="MM/YYYY"
+                            maxLength={7}
+                            value={expInput.startDate}
+                            onChange={(e) => setExpInput(p => ({ ...p, startDate: formatMonthYear(e.target.value) }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="cr-field">
+                        <label>End date</label>
+                        <div className="cr-input-wrap">
+                          <Calendar size={16} className="cr-icon" />
+                          <input
+                            id="exp-endDate"
+                            type="text"
+                            placeholder="MM/YYYY"
+                            maxLength={7}
+                            value={expInput.endDate}
+                            disabled={expInput.currentlyWork}
+                            onChange={(e) => setExpInput(p => ({ ...p, endDate: formatMonthYear(e.target.value) }))}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <label className="cr-exp-current-check">
+                      <input
+                        type="checkbox"
+                        checked={expInput.currentlyWork}
+                        onChange={(e) => setExpInput(p => ({ ...p, currentlyWork: e.target.checked, endDate: e.target.checked ? '' : p.endDate }))}
+                      />
+                      <span>I currently work here</span>
+                    </label>
+                    <div className="cr-field" style={{ marginTop: '0.75rem' }}>
+                      <label>Key responsibilities / achievements</label>
+                      <textarea
+                        id="exp-responsibilities"
+                        rows={4}
+                        placeholder="Briefly describe your role, key projects, and measurable achievements"
+                        value={expInput.responsibilities}
+                        onChange={(e) => setExpInput(p => ({ ...p, responsibilities: e.target.value }))}
+                      />
+                    </div>
+                    <button type="button" className="cr-exp-add-btn" onClick={addExp}>
+                      + Add Experience
+                    </button>
+                  </div>
+                  </>)}
+
+                  {!form.totalExperience && (
+                    <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.25rem' }}>
+                    </p>
+                  )}
+                  {form.totalExperience === 'Fresher / less than 1 year' && (
+                    <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '0.25rem' }}>
+                    </p>
+                  )}
                 </div>
 
                 <div className="cr-field">
@@ -610,13 +748,28 @@ export default function CandidateRegister() {
                       <div className="cr-input-wrap" style={{ flex: 1 }}>
                         <Calendar size={16} className="cr-icon" />
                         <input
-                          id="qual-year"
+                          id="qual-startYear"
                           type="number"
                           min="1950"
                           max={new Date().getFullYear()}
-                          placeholder="Year"
-                          value={qualInput.year}
-                          onChange={(e) => setQualInput((p) => ({ ...p, year: e.target.value }))}
+                          placeholder="Start Year"
+                          value={qualInput.startYear}
+                          maxLength={4}
+                          onChange={(e) => setQualInput((p) => ({ ...p, startYear: e.target.value.slice(0, 4) }))}
+                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addQual())}
+                        />
+                      </div>
+                      <div className="cr-input-wrap" style={{ flex: 1 }}>
+                        <Calendar size={16} className="cr-icon" />
+                        <input
+                          id="qual-endYear"
+                          type="number"
+                          min="1950"
+                          max={new Date().getFullYear() + 10}
+                          placeholder="End Year"
+                          value={qualInput.endYear}
+                          maxLength={4}
+                          onChange={(e) => setQualInput((p) => ({ ...p, endYear: e.target.value.slice(0, 4) }))}
                           onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addQual())}
                         />
                       </div>
@@ -633,7 +786,11 @@ export default function CandidateRegister() {
                             <div className="cr-qual-card-body">
                               <span className="cr-qual-degree">{q.degree}</span>
                               {q.institution && <span className="cr-qual-inst">{q.institution}</span>}
-                              {q.year && <span className="cr-qual-year">{q.year}</span>}
+                              {(q.startYear || q.endYear) && (
+                                <span className="cr-qual-year">
+                                  {q.startYear}{q.startYear && q.endYear ? ' – ' : ''}{q.endYear}
+                                </span>
+                              )}
                             </div>
                             <button
                               type="button"
@@ -692,29 +849,6 @@ export default function CandidateRegister() {
                   </div>
                 </div>
 
-                {/* Auto-generated info */}
-                <div className="cr-account-info">
-                  <div className="cr-account-row">
-                    <div className="cr-account-item">
-                      <User size={16} />
-                      <div>
-                        <label>Username (auto-generated)</label>
-                        <strong>{username || '—'}</strong>
-                      </div>
-                    </div>
-                    <div className="cr-account-item">
-                      <Mail size={16} />
-                      <div>
-                        <label>Company Email (auto-generated)</label>
-                        <strong>{companyEmail || '—'}</strong>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="cr-account-note">
-                    These credentials are assigned by SimtechON HR. Your username is
-                    <strong> first.lastname</strong> and your company email will be activated once approved.
-                  </p>
-                </div>
 
                 {/* Password */}
                 <div className="cr-field">

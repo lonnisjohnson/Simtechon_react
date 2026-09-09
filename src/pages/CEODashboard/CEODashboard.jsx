@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { jsPDF } from 'jspdf'
 import { API_BASE } from '../../config'
 import './CEODashboard.css'
 
@@ -58,7 +59,7 @@ const companies = [
 /* ── Status badge helper ─────────────────────────────────────────────────── */
 function StatusBadge({ status, id, onStatusChange }) {
   const cls =
-    status === 'Approved' ? 'badge badge-green' :
+    status === 'Shortlisted' ? 'badge badge-green' :
       status === 'Rejected' ? 'badge badge-red' : 'badge badge-yellow'
 
   return (
@@ -68,7 +69,7 @@ function StatusBadge({ status, id, onStatusChange }) {
       onChange={(e) => onStatusChange(id, e.target.value)}
     >
       <option value="Pending" className="opt-pending">Pending</option>
-      <option value="Approved" className="opt-approved">Approved</option>
+      <option value="Shortlisted" className="opt-approved">Shortlisted</option>
       <option value="Rejected" className="opt-rejected">Rejected</option>
     </select>
   )
@@ -78,6 +79,108 @@ function StatusBadge({ status, id, onStatusChange }) {
 function fmtDate(iso) {
   if (!iso) return '—'
   return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+/* ── ATS-friendly PDF export ─────────────────────────────────────────────── */
+function exportCandidatePDF(c) {
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+  const W = 210, marginL = 18, marginR = 18, contentW = W - marginL - marginR
+  let y = 20
+
+  const safeArr = (val) => {
+    try { return Array.isArray(val) ? val : JSON.parse(val || '[]') }
+    catch { return [] }
+  }
+
+  const line = (text, opts = {}) => {
+    const { size = 10, bold = false, color = [30, 30, 30], indent = 0, gap = 5 } = opts
+    doc.setFontSize(size)
+    doc.setFont('helvetica', bold ? 'bold' : 'normal')
+    doc.setTextColor(...color)
+    const lines = doc.splitTextToSize(text, contentW - indent)
+    lines.forEach(l => {
+      if (y > 270) { doc.addPage(); y = 20 }
+      doc.text(l, marginL + indent, y)
+      y += gap
+    })
+  }
+
+  const divider = (color = [210, 215, 225]) => {
+    if (y > 270) { doc.addPage(); y = 20 }
+    doc.setDrawColor(...color)
+    doc.setLineWidth(0.3)
+    doc.line(marginL, y, W - marginR, y)
+    y += 4
+  }
+
+  const sectionTitle = (title) => {
+    y += 2
+    doc.setFillColor(37, 99, 235)
+    doc.rect(marginL, y, 3, 4.5, 'F')
+    line(title.toUpperCase(), { size: 9, bold: true, color: [37, 99, 235], indent: 6, gap: 6 })
+    divider([200, 220, 255])
+  }
+
+  // ── HEADER ──
+  // Company Brand (Top Right)
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(37, 99, 235) // brand blue
+  doc.text('SimtechON', W - marginR, y, { align: 'right' })
+  doc.setTextColor(15, 23, 42)
+
+  // Candidate Info (Top Left)
+  line(`${c.first_name} ${c.last_name}`, { size: 20, bold: true, color: [15, 23, 42], gap: 7 })
+  if (c.applied_for) line(`Applying for: ${c.applied_for}`, { size: 9, color: [100, 116, 139], gap: 5 })
+  y += 2
+  divider([180, 195, 215])
+
+  // ── EXPERIENCE LEVEL ──
+  if (c.experience_level) {
+    sectionTitle('Experience Level')
+    line(c.experience_level, { size: 10, gap: 5 })
+  }
+
+  // ── WORK EXPERIENCE ──
+  const exps = safeArr(c.experiences)
+  if (exps.length > 0) {
+    sectionTitle('Work Experience')
+    exps.forEach((e, i) => {
+      const dateRange = `${e.startDate || ''}${e.endDate ? ' – ' + e.endDate : e.currentlyWork ? ' – Present' : ''}`
+      line(`${e.jobTitle}${e.company ? ' at ' + e.company : ''}`, { size: 11, bold: true, gap: 5 })
+      if (dateRange.trim()) line(dateRange, { size: 9, color: [100, 116, 139], gap: 4 })
+      if (e.responsibilities) line(e.responsibilities, { size: 10, indent: 4, gap: 5 })
+      if (i < exps.length - 1) y += 3
+    })
+  }
+
+  // ── SKILLS ──
+  if (c.work_skills) {
+    sectionTitle('Skills')
+    const skills = c.work_skills.split(/[,;]+/).map(s => s.trim()).filter(Boolean)
+    line(skills.join('  ·  '), { size: 10, gap: 5 })
+  }
+
+  // ── QUALIFICATIONS ──
+  const quals = safeArr(c.qualifications)
+  if (quals.length > 0) {
+    sectionTitle('Education')
+    quals.forEach((q, i) => {
+      const yr = q.startYear ? `${q.startYear}${q.endYear ? ' – ' + q.endYear : ''}` : ''
+      line(`${q.degree}${q.institution ? ', ' + q.institution : ''}`, { size: 11, bold: true, gap: 5 })
+      if (yr) line(yr, { size: 9, color: [100, 116, 139], gap: 4 })
+      if (i < quals.length - 1) y += 2
+    })
+  }
+
+  // ── CERTIFICATES & COURSES ──
+  if (c.valid_certificates || c.completed_courses) {
+    sectionTitle('Certifications & Courses')
+    if (c.valid_certificates) line(`Certificates: ${c.valid_certificates}`, { size: 10, gap: 5 })
+    if (c.completed_courses) line(`Courses: ${c.completed_courses}`, { size: 10, gap: 5 })
+  }
+
+  doc.save(`${c.first_name}_${c.last_name}_Resume.pdf`)
 }
 
 /* ── Main Component ──────────────────────────────────────────────────────── */
@@ -311,18 +414,16 @@ function CEODashboard() {
                       <th>Candidate ID</th>
                       <th>Name</th>
                       <th>Applied For</th>
-                      <th>Contact</th>
-                      <th>Availability</th>
                       <th>Expected Rate</th>
                       <th>Status</th>
                       <th>Submitted</th>
-                      <th></th>
+                      <th style={{ width: 100, textAlign: 'center' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="11">
+                        <td colSpan="9">
                           <div className="cand-state">
                             <div className="cand-spinner" />
                             <p>Loading candidates from database…</p>
@@ -331,7 +432,7 @@ function CEODashboard() {
                       </tr>
                     ) : (fetchError || filtered.length === 0) ? (
                       <tr>
-                        <td colSpan="11">
+                        <td colSpan="9">
                           <div className="cand-state">
                             <span className="material-symbols-rounded cand-empty-icon">inbox</span>
                             <p>{search ? 'No candidates match your search.' : 'No Candidates Available'}</p>
@@ -353,14 +454,6 @@ function CEODashboard() {
                               </span>
                             </td>
                             <td>
-                              <div className="cand-contact-main">{c.personal_email}</div>
-                              <div className="cand-contact-sub">{c.phone}</div>
-                            </td>
-                            <td>
-                              <div className="cand-avail">{fmtDate(c.available_from)}</div>
-                              <div className="cand-avail-to">→ {fmtDate(c.available_to)}</div>
-                            </td>
-                            <td>
                               {c.expected_hourly_rate ? <div className="cand-rate">€{c.expected_hourly_rate}/hr</div> : null}
                               {c.expected_weekly_rate ? <div className="cand-rate-sub">€{c.expected_weekly_rate}/wk</div> : (!c.expected_hourly_rate ? '—' : null)}
                             </td>
@@ -374,29 +467,67 @@ function CEODashboard() {
                             </td>
                             <td className="cand-date">{fmtDate(c.submitted_at)}</td>
                             <td>
-                              <span className={`cand-chevron material-symbols-rounded ${expandedId === c.id ? 'open' : ''}`}>
-                                expand_more
-                              </span>
+                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                <button
+                                  className="btn-ghost"
+                                  style={{ padding: '6px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(37, 99, 235, 0.08)', color: '#2563eb' }}
+                                  title="Export ATS Resume"
+                                  onClick={(e) => { e.stopPropagation(); exportCandidatePDF(c) }}
+                                >
+                                  <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>download</span>
+                                </button>
+                                <button
+                                  className="btn-ghost"
+                                  style={{ padding: '6px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                  title={expandedId === c.id ? "Hide Details" : "View Details"}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setExpandedId(expandedId === c.id ? null : c.id);
+                                  }}
+                                >
+                                  <span className={`cand-chevron material-symbols-rounded ${expandedId === c.id ? 'open' : ''}`} style={{ fontSize: '18px' }}>
+                                    expand_more
+                                  </span>
+                                </button>
+                              </div>
                             </td>
                           </tr>
 
                           {/* Expanded detail row */}
                           {expandedId === c.id && (
                             <tr key={`exp-${c.id}`} className="cand-detail-row">
-                              <td colSpan={11}>
+                              <td colSpan={9}>
                                 <div className="cand-detail-grid">
+
+                                  {/* Availability */}
                                   <div className="cand-detail-block">
-                                    <h4><span className="material-symbols-rounded">badge</span> Account</h4>
-                                    <p><label>Username</label>{c.username || '—'}</p>
-                                    <p><label>Company Email</label>{c.company_email || '—'}</p>
+                                    <h4><span className="material-symbols-rounded">schedule</span> Availability</h4>
+                                    <p><label>Time Window</label>{c.time_from && c.time_to ? `${c.time_from} – ${c.time_to}` : '—'}</p>
+                                    <p><label>Available Days</label>{c.available_days || '—'}</p>
                                   </div>
+
+                                  {/* Experience Level */}
                                   <div className="cand-detail-block">
-                                    <h4><span className="material-symbols-rounded">schedule</span> Availability Hours</h4>
-                                    <p><label>Time Window</label>{c.time_from} – {c.time_to}</p>
-                                    <p><label>Hours/Day</label>{c.hours_per_day || '—'}</p>
-                                    <p><label>Hours/Week</label>{c.hours_per_week || '—'}</p>
-                                    <p><label>Hours/Month</label>{c.hours_per_month || '—'}</p>
+                                    <h4><span className="material-symbols-rounded">work_history</span> Experience</h4>
+                                    <p><label>Level</label>{c.experience_level || '—'}</p>
+                                    {(() => {
+                                      try {
+                                        const exps = typeof c.experiences === 'string'
+                                          ? JSON.parse(c.experiences)
+                                          : c.experiences || []
+                                        return exps.length > 0
+                                          ? exps.map((e, i) => (
+                                            <p key={i}>
+                                              <label>{e.startDate}{e.endDate ? ` – ${e.endDate}` : e.currentlyWork ? ' – Present' : ''}</label>
+                                              {e.jobTitle}{e.company ? ` @ ${e.company}` : ''}
+                                            </p>
+                                          ))
+                                          : null
+                                      } catch { return null }
+                                    })()}
                                   </div>
+
+                                  {/* Qualifications */}
                                   <div className="cand-detail-block">
                                     <h4><span className="material-symbols-rounded">school</span> Qualifications</h4>
                                     {(() => {
@@ -407,7 +538,7 @@ function CEODashboard() {
                                         return qs.length > 0
                                           ? qs.map((q, i) => (
                                             <p key={i}>
-                                              <label>{q.year}</label>
+                                              <label>{q.startYear}{q.endYear ? ` – ${q.endYear}` : ''}</label>
                                               {q.degree}{q.institution ? `, ${q.institution}` : ''}
                                             </p>
                                           ))
@@ -415,15 +546,20 @@ function CEODashboard() {
                                       } catch { return <p>—</p> }
                                     })()}
                                   </div>
+
+                                  {/* Certificates & Courses */}
                                   <div className="cand-detail-block">
                                     <h4><span className="material-symbols-rounded">workspace_premium</span> Certificates &amp; Courses</h4>
                                     <p><label>Certificates</label>{c.valid_certificates || '—'}</p>
                                     <p><label>Courses</label>{c.completed_courses || '—'}</p>
                                   </div>
+
+                                  {/* Work Skills */}
                                   <div className="cand-detail-block cand-skills-full">
                                     <h4><span className="material-symbols-rounded">construction</span> Work Skills</h4>
                                     <p>{c.work_skills || '—'}</p>
                                   </div>
+
                                 </div>
                               </td>
                             </tr>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
   MapPin, Clock, ArrowLeft, CheckCircle, Users,
-  Star, MessageSquare, DollarSign, Calendar, AlertCircle,
+  Star, MessageSquare, Calendar, AlertCircle, Briefcase,
 } from 'lucide-react'
 import { API_BASE } from '../../config.js'
 import './JobDetail.css'
@@ -115,8 +115,7 @@ function JobDetail() {
           <div className="jd-hero-meta fade-up">
             {job.location      && <span className="jd-meta-chip"><MapPin size={14} /> {job.location}</span>}
             {job.employment_type && <span className="jd-meta-chip"><Clock size={14} /> {job.employment_type}</span>}
-            {job.experience    && <span className="jd-meta-chip"><Users size={14} /> {job.experience}</span>}
-            {job.payment_range && <span className="jd-meta-chip jd-salary-chip"><DollarSign size={14} /> {job.payment_range}</span>}
+            {job.experience    && <span className="jd-meta-chip"><Briefcase size={14} /> {job.experience} yrs exp</span>}
           </div>
         </div>
       </div>
@@ -224,8 +223,7 @@ function JobDetail() {
             </h2>
             <p className="jd-apply-desc">
               To register your interest for the <strong>{job.title}</strong> role, send us a message
-              through our <strong>Contact page</strong>. Our HR team will respond within{' '}
-              <strong>2–3 business days</strong>.
+              through our <strong>Contact page</strong>
             </p>
             {postedDate && (
               <div className="jd-posted-row">
